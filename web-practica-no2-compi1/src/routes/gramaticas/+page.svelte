@@ -80,7 +80,7 @@
                         <button
                             class="btn btn-sm btn-outline-warning border-0 py-0"
                             onclick={() => (g.entradaUsuario = "")}
-                            aria-label="Limpiar entrada de texto"
+                            aria-label="Limpiar entrada"
                         >
                             <i class="bi bi-eraser-fill"></i>
                         </button>
@@ -90,11 +90,49 @@
                         class="card-body p-0 d-flex flex-column"
                         style="height: 350px;"
                     >
-                        <textarea
-                            class="form-control border-0 text-success flex-grow-1 text-monospace p-3 bg-editor"
-                            bind:value={g.entradaUsuario}
-                            placeholder="> Escribe la entrada para probar la gramatica..."
-                        ></textarea>
+                        <div class="editor-wrapper flex-grow-1">
+                            <div
+                                id="line-numbers-gutter"
+                                class="line-numbers overflow-hidden"
+                            >
+                                {#each Array(g.lineas) as _, i}
+                                    <div
+                                        class={g.cursor.fila === i + 1
+                                            ? "line-number-active"
+                                            : ""}
+                                    >
+                                        {i + 1}
+                                    </div>
+                                {/each}
+                            </div>
+
+                            <textarea
+                                class="form-control border-0 text-success flex-grow-1 text-monospace bg-editor shadow-none h-100"
+                                bind:value={g.entradaUsuario}
+                                oninput={(e) => g.actualizarPosicion(e)}
+                                onclick={(e) => g.actualizarPosicion(e)}
+                                onkeyup={(e) => g.actualizarPosicion(e)}
+                                onscroll={(e) => g.syncScroll(e)}
+                                spellcheck="false"
+                                placeholder="> Escribe tu código aquí..."
+                            ></textarea>
+                        </div>
+
+                        <div
+                            class="editor-status-bar d-flex justify-content-between px-3 py-1 border-top border-secondary text-secondary"
+                        >
+                            <div class="small-text text-monospace">
+                                <span>{g.entradaUsuario.length} caracteres</span
+                                >
+                            </div>
+                            <div class="small-text text-monospace fw-bold">
+                                <span
+                                    >Ln {g.cursor.fila}, Col {g.cursor
+                                        .columna}</span
+                                >
+                            </div>
+                        </div>
+
                         <div
                             class="card-footer card-custom bg-transparent text-end py-2"
                         >
@@ -172,7 +210,8 @@
                                     <th class="ps-3 border-0">Lexema</th>
                                     <th class="border-0">Tipo</th>
                                     <th class="text-center border-0">Fila</th>
-                                    <th class="text-center border-0">Columna</th>
+                                    <th class="text-center border-0">Columna</th
+                                    >
                                     <th class="ps-3 border-0">Descripcion</th>
                                 </tr>
                             </thead>
@@ -198,9 +237,7 @@
                                         <td class="text-center text-info"
                                             >{error.columna}</td
                                         >
-                                        <td
-                                            class="ps-3 text-white italic-text"
-                                        >
+                                        <td class="ps-3 text-white italic-text">
                                             {error.descripcion}
                                         </td>
                                     </tr>
@@ -261,7 +298,7 @@
                         >
                             <p>
                                 <i class="bi bi-info-circle me-2"></i>Introduce
-                                una entrada valida para generar el arbol
+                                una entrada valida para generar el arbol de derivacion de la gramatica
                             </p>
                         </div>
                     {/if}

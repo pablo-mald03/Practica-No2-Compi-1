@@ -9,6 +9,16 @@
 
 .bg-editor {
     background-color: #050a15 !important;
+    line-height: 1.5 !important;
+    padding: 1rem !important;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+.editor-status-bar {
+    background-color: #050a15;
+    font-size: 0.75rem;
+    user-select: none;
 }
 
 .card-custom {
@@ -71,4 +81,43 @@
 
 .table-hover tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.small-text {
+    font-size: 0.7rem;
+}
+
+
+.form-control:focus {
+    box-shadow: none;
+    background-color: #050a15;
+}
+
+.text-monospace {
+    font-family: 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.editor-wrapper {
+    display: flex;
+    flex-grow: 1;
+    background-color: #050a15;
+    overflow: hidden; 
+}
+
+.line-numbers {
+    width: 45px;
+    background-color: #0f172a;
+    color: #475569;
+    text-align: right;
+    padding: 1rem 0.5rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5; 
+    user-select: none;
+    border-right: 1px solid #1e293b;
+}
+
+.line-number-active {
+    color: #94a3b8;
+    background-color: #1e293b;
 }
