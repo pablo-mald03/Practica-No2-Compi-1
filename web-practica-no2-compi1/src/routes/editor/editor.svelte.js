@@ -1,19 +1,24 @@
-// editor.svelte.js
+//Funcion javaScript que permite crear la reactividad de la pagina web
 export function createEditorState() {
-    // 1. Definimos las variables internas (usando los nombres largos para evitar líos)
+    //Se definen las variables que se usaran para operar de forma reactiva
     let codigoGramatica = $state("");
     let logConsola = $state("Wison Compiler v1.0.0\nEsperando entrada...");
     let fila = $state(1);
     let columna = $state(1);
     let errores = $state([]);
+
+    /*Variable que permite mostrar los presets*/
     let mostrarPresets = $state(true);
 
-    // 2. Definimos la lógica derivada
+    /*Estado para minimizar y maximizar la tabla de errores*/
+    let mostrarErrores = $state(true);
+
+    //Registro de las lineas que tiene el editor de texto
     let lineasArray = $derived(codigoGramatica.split("\n").map((_, i) => i + 1));
 
-    // 3. Retornamos el objeto que el HTML va a usar
+    //Se retorna el objeto para poderse usar en el HTML en el DOM
     return {
-        // Getters y Setters para que Svelte 5 detecte los cambios
+        // Getters y Setters para que la web pueda detectar los cambios
         get codigoGramatica() { return codigoGramatica; },
         set codigoGramatica(v) { codigoGramatica = v; },
 
@@ -32,16 +37,20 @@ export function createEditorState() {
         get mostrarPresets() { return mostrarPresets; },
         set mostrarPresets(v) { mostrarPresets = v; },
 
+        get mostrarErrores() { return mostrarErrores; },
+        set mostrarErrores(v) { mostrarErrores = v; },
+
         get lineasArray() { return lineasArray; },
 
-        // Métodos de acción
+        //Metodo que permite actualizar la posicion del caret
         actualizarPosicion(textarea) {
             const textoHastaCursor = textarea.value.substring(0, textarea.selectionStart);
             const lineas = textoHastaCursor.split("\n");
-            fila = lineas.length; // Actualizamos la variable interna
+            fila = lineas.length;
             columna = lineas[lineas.length - 1].length + 1;
         },
 
+        /*Metodo que permite cargar un preset para poder insertar codigo*/
         cargarPreset(tipo) {
             if (tipo === "calculadora") {
                 codigoGramatica = `%lex\n%%\n"+" return '+';\n[0-9]+ return 'NUM';\n/lex\n%%\nexp: exp '+' NUM | NUM;`;
@@ -49,10 +58,17 @@ export function createEditorState() {
             logConsola += `\n[INFO] Preset "${tipo}" cargado.`;
         },
 
+        /*Metodo que permite compilar QUEMADO DE MOMENTO*/
         compilar() {
-            logConsola += "\n[INFO] Iniciando análisis...";
+            logConsola += "\n[INFO] Iniciando analisis...";
+            mostrarErrores = true;
             errores = [
-                { tipo: "Sintactico", lexema: "}", fila: 2, columna: 5, descripcion: "Error inesperado" }
+                { lexema: "@", tipo: "Lexico", fila: 2, columna: 5, descripcion: "Error inesperado" },
+                { lexema: "(", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "Error inesperado" },
+                { lexema: "}", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "Error inesperado" },
+                { lexema: "}", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "Error inesperado" },
+                { lexema: "a= 0", tipo: "Semantico", fila: 2, columna: 5, descripcion: "Variable no definida" },
+                { lexema: "if", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "token no registrado en la gramatica" }
             ];
         }
     };

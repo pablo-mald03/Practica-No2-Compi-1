@@ -1,11 +1,11 @@
 <script>
-    import './editor.css';
-    import { createEditorState } from './editor.svelte.js';
+    import "./editor.css";
+    import { createEditorState } from "./editor.svelte.js";
 
     //Se inicializa el estado
     const e = createEditorState();
 
-    let elTextarea; 
+    let elTextarea;
     let elGutter;
 
     /*Metodo que permite verificar el estado del scroll*/
@@ -18,136 +18,277 @@
         handleScroll();
         e.actualizarPosicion(event.target);
     }
-
 </script>
 
-<div class="row g-4">
-    {#if e.mostrarPresets}
-        <div class="col-md-2">
-            <div class="card shadow-lg border-secondary bg-dark h-100">
-                <div class="card-header border-secondary text-info small fw-bold">
-                    <i class="bi bi-collection-fill me-2"></i>PRESETS
-                </div>
-                <div class="card-body p-2">
-                    <button
-                        class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start"
-                        onclick={() => e.cargarPreset("calculadora")}
+<div
+    class="container-fluid min-vh-100 d-flex flex-column text-white p-0"
+    style="background-color: #0f172a;"
+>
+    <main class="flex-grow-1 p-4 d-flex flex-column">
+        <div class="row g-4 flex-grow-1">
+            {#if e.mostrarPresets}
+                <div class="col-md-2 d-flex flex-column">
+                    <div
+                        class="card shadow-lg border-secondary bg-dark flex-grow-1"
                     >
-                        <i class="bi bi-plus-circle me-2"></i>Calculadora
-                    </button>
-                    <button
-                        class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start"
-                        onclick={() => e.cargarPreset("if-else")}
-                    >
-                        <i class="bi bi-alt me-2"></i>Condicionales
-                    </button>
-                </div>
-            </div>
-        </div>
-    {/if}
-
-    <div class={e.mostrarPresets ? "col-md-7" : "col-md-9"}>
-        <div class="card shadow-lg border-secondary bg-dark mb-4">
-            <div class="card-header border-secondary d-flex justify-content-between align-items-center" style="background-color: #1e293b;">
-                <div class="d-flex align-items-center">
-                    <button
-                        class="btn btn-sm btn-outline-info me-3"
-                        onclick={() => (e.mostrarPresets = !e.mostrarPresets)}
-                        aria-label="Insertar preset"
-                    >
-                        <i class="bi {e.mostrarPresets ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}"></i>
-                    </button>
-                    <h5 class="mb-0 text-info font-monospace">Editor.wison</h5>
-                </div>
-                <span class="badge bg-warning text-dark">Wison Engine</span>
-            </div>
-
-            <div class="card-body p-0 position-relative d-flex" style="background-color: #0f172a;">
-                <div class="gutter select-none" bind:this={elGutter}>
-                    {#each e.lineasArray as n}
-                        <div class="gutter-num" class:text-info={n === e.fila}>
-                            {n}
+                        <div
+                            class="card-header border-secondary text-info small fw-bold"
+                            style="background-color: #1e293b;"
+                        >
+                            <i class="bi bi-collection-fill me-2"></i>PRESETS
                         </div>
-                    {/each}
+                        <div class="card-body p-2">
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("calculadora")}
+                            >
+                                <i class="bi bi-plus-circle me-2 text-info"
+                                ></i>Calculadora
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("if-else")}
+                            >
+                                <i class="bi bi-alt me-2 text-info"
+                                ></i>Condicionales
+                            </button>
+                        </div>
+                    </div>
                 </div>
+            {/if}
 
-                <textarea
-                    bind:this={elTextarea}
-                    class="form-control border-0 text-white editor-textarea"
-                    bind:value={e.codigoGramatica}
-                    onkeyup={handleCursor}
-                    onclick={handleCursor}
-                    onscroll={handleScroll}
-                    spellcheck="false"
-                    placeholder="/* Escribe tu gramatica aqui... */"
-                ></textarea>
-            </div>
-
-            <div class="status-bar px-3 py-1 bg-dark text-white border-top border-secondary d-flex justify-content-between">
-                <span class="small">Wison Compiler | UTF-8</span>
-                <span class="small font-monospace">Ln {e.fila}, Col {e.columna}</span>
-            </div>
-
-            <div class="card-footer border-secondary text-end" style="background-color: #1e293b;">
-                <button
-                    class="btn btn-outline-warning me-2"
-                    onclick={() => { e.codigoGramatica = ""; e.errores = []; }}
-                    aria-label="Limpiar editor"
+            <div
+                class="{e.mostrarPresets
+                    ? 'col-md-7'
+                    : 'col-md-9'} d-flex flex-column"
+            >
+                <div
+                    class="card shadow-lg border-secondary bg-dark d-flex flex-column flex-grow-1 mb-4"
                 >
-                    <i class="bi bi-trash"></i>
-                </button>
-                <button class="btn btn-success px-4 fw-bold shadow-sm" onclick={() => e.compilar()}>
-                    <i class="bi bi-play-fill me-1"></i> GENERAR
-                </button>
-            </div>
-        </div>
+                    <div
+                        class="card-header border-secondary d-flex justify-content-between align-items-center"
+                        style="background-color: #1e293b;"
+                    >
+                        <div class="d-flex align-items-center">
+                            <button
+                                class="btn btn-sm btn-outline-info me-3 border-0"
+                                onclick={() =>
+                                    (e.mostrarPresets = !e.mostrarPresets)}
+                                aria-label="Mostrar presets"
+                            >
+                                <i
+                                    class="bi {e.mostrarPresets
+                                        ? 'bi-layout-sidebar-inset'
+                                        : 'bi-layout-sidebar'}"
+                                ></i>
+                            </button>
+                            <h5 class="mb-0 text-info font-monospace">
+                                Editor.wison
+                            </h5>
+                        </div>
+                        <span class="badge bg-warning text-dark"
+                            >Wison Engine</span
+                        >
+                    </div>
 
-        {#if e.errores.length > 0}
-            <div class="card shadow-lg border-danger bg-dark">
-                <div class="card-header bg-danger text-white d-flex justify-content-between">
-                    <span><i class="bi bi-bug-fill me-2"></i>Errores Detectados</span>
-                    <button
-                        class="btn-close btn-close-white"
-                        onclick={() => (e.errores = [])}
-                        aria-label="Cerrar reporte de errores"
-                    ></button>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-dark table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Lexema</th>
-                                <th>Tipo</th>
-                                <th>Fila</th>
-                                <th>Col</th>
-                                <th>Descripcion</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {#each e.errores as err}
-                                <tr>
-                                    <td class="text-danger">{err.tipo}</td>
-                                    <td><code>{err.lexema}</code></td>
-                                    <td>{err.fila}</td>
-                                    <td>{err.columna}</td>
-                                    <td>{err.descripcion}</td>
-                                </tr>
+                    <div
+                        class="card-body p-0 position-relative d-flex flex-grow-1"
+                        style="background-color: #0f172a; overflow: hidden;"
+                    >
+                        <div
+                            class="gutter select-none overflow-hidden"
+                            bind:this={elGutter}
+                        >
+                            {#each e.lineasArray as n}
+                                <div
+                                    class="gutter-num"
+                                    class:text-info={n === e.fila}
+                                >
+                                    {n}
+                                </div>
                             {/each}
-                        </tbody>
-                    </table>
+                        </div>
+                        <textarea
+                            bind:this={elTextarea}
+                            class="form-control border-0 text-white editor-textarea flex-grow-1"
+                            bind:value={e.codigoGramatica}
+                            onkeyup={handleCursor}
+                            onclick={handleCursor}
+                            onscroll={handleScroll}
+                            spellcheck="false"
+                            placeholder="/* Escribe tu gramatica aqui... */"
+                        ></textarea>
+                    </div>
+
+                    <div
+                        class="status-bar px-3 py-1 text-white border-top border-secondary d-flex justify-content-between"
+                        style="background-color: #1e293b;"
+                    >
+                        <span class="small opacity-75"
+                            >Wison Compiler | UTF-8</span
+                        >
+                        <span class="small font-monospace text-info"
+                            >Ln {e.fila}, Col {e.columna}</span
+                        >
+                    </div>
+
+                    <div
+                        class="card-footer border-secondary text-end"
+                        style="background-color: #1e293b;"
+                    >
+                        <button
+                            class="btn btn-outline-warning me-2"
+                            onclick={() => {
+                                e.codigoGramatica = "";
+                                e.errores = [];
+                            }}
+                            aria-label="compilar gramatica"
+                        >
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button
+                            class="btn btn-success px-4 fw-bold shadow-sm"
+                            onclick={() => e.compilar()}
+                        >
+                            <i class="bi bi-play-fill me-1"></i> GENERAR
+                        </button>
+                    </div>
+                </div>
+
+                {#if e.errores.length > 0}
+                    <div class="card shadow-lg border-danger bg-dark">
+                        <div
+                            class="card-header bg-danger text-white d-flex justify-content-between align-items-center"
+                        >
+                            <span
+                                ><i class="bi bi-bug-fill me-2"></i>Errores
+                                Detectados ({e.errores.length})</span
+                            >
+                            <button
+                                class="btn btn-sm btn-light py-0 px-2"
+                                onclick={() =>
+                                    (e.mostrarErrores = !e.mostrarErrores)}
+                                aria-label="mostrar errores"
+                            >
+                                <i
+                                    class="bi {e.mostrarErrores
+                                        ? 'bi-chevron-up'
+                                        : 'bi-chevron-down'} text-danger"
+                                ></i>
+                            </button>
+                        </div>
+
+                        {#if e.mostrarErrores}
+                            <div
+                                class="card-body p-0 overflow-auto"
+                                style="max-height: 180px; border-top: 1px solid #dc3545;"
+                            >
+                                <table
+                                    class="table table-dark table-hover table-bordered mb-0 small"
+                                    style="border-color: #334155;"
+                                >
+                                    <thead
+                                        class="sticky-top"
+                                        style="z-index: 10;"
+                                    >
+                                        <tr class="table-active">
+                                            <th
+                                                class="py-1 px-3"
+                                                style="width: 15%;">Lexema</th
+                                            >
+                                            <th
+                                                class="py-1 px-3 text-info"
+                                                style="width: 15%;">Tipo</th
+                                            >
+                                            <th
+                                                class="py-1 px-2 text-center"
+                                                style="width: 10%;">Fila</th
+                                            >
+                                            <th
+                                                class="py-1 px-2 text-center"
+                                                style="width: 10%;">Columna</th
+                                            >
+                                            <th class="py-1 px-3"
+                                                >Descripción</th
+                                            >
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {#each e.errores as err}
+                                            <tr class="align-middle">
+                                                <td class="py-1 px-3">
+                                                    <code
+                                                        class="text-info"
+                                                        >{err.lexema}</code
+                                                    >
+                                                </td>
+                                                <td class="py-1 px-3">
+                                                    <span
+                                                        class="badge bg-danger-subtle text-danger border border-danger-subtle w-100"
+                                                    >
+                                                        {err.tipo}
+                                                    </span>
+                                                </td>
+                                                <td
+                                                    class="py-1 px-2 text-center font-monospace text-secondary"
+                                                >
+                                                    {err.fila}
+                                                </td>
+                                                <td
+                                                    class="py-1 px-2 text-center font-monospace text-secondary"
+                                                >
+                                                    {err.columna}
+                                                </td>
+                                                <td
+                                                    class="py-1 px-3 text-light-50"
+                                                >
+                                                    {err.descripcion}
+                                                </td>
+                                            </tr>
+                                        {/each}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+
+            <div class="col-md-3 d-flex flex-column">
+                <div
+                    class="card shadow-lg border-secondary flex-grow-1"
+                    style="background-color: #0f172a;"
+                >
+                    <div
+                        class="card-header border-secondary text-warning py-2"
+                        style="background-color: #1e293b;"
+                    >
+                        <h6 class="mb-0 small fw-bold text-warning">
+                            CONSOLA DE SALIDA
+                        </h6>
+                    </div>
+                    <div
+                        class="card-body p-3 overflow-auto flex-grow-1 bg-transparent"
+                    >
+                        <pre class="text-success small"><code
+                                >{e.logConsola}</code
+                            ></pre>
+                    </div>
                 </div>
             </div>
-        {/if}
-    </div>
+        </div>
+    </main>
 
-    <div class="col-md-3">
-        <div class="card shadow-lg border-warning h-100" style="background-color: #0f172a;">
-            <div class="card-header border-warning text-white py-2" style="background-color: #1e293b;">
-                <h6 class="mb-0 small fw-bold">CONSOLA DE SALIDA</h6>
-            </div>
-            <div class="card-body p-3 overflow-auto">
-                <pre class="text-success small"><code>{e.logConsola}</code></pre>
+    <footer
+        class="py-2 px-4 border-top border-secondary text-center small text-white-50"
+        style="background-color: #1e293b;"
+    >
+        <div class="d-flex justify-content-between align-items-center">
+            <span>© 2026 Wison Engine - Pablo-company</span>
+            <div>
+                <span class="me-3"><i class="bi bi-cpu me-1"></i> V 1.0.0</span>
+                <span><i class="bi bi-github me-1"></i> pablo-dev</span>
             </div>
         </div>
-    </div>
+    </footer>
 </div>

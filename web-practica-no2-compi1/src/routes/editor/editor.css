@@ -1,4 +1,4 @@
-    .gutter {
+.gutter {
         width: 45px;
         background-color: #1e293b;
         color: #4b5563;
@@ -18,7 +18,7 @@
 
     .editor-textarea {
         background: transparent !important;
-        height: 500px;
+        height: 100%; /* <--- EL SECRETO ESTÁ AQUÍ */
         font-family: "Fira Code", monospace;
         font-size: 0.95rem;
         line-height: 1.5rem;
