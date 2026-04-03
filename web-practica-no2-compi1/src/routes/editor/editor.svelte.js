@@ -20,31 +20,31 @@ export function createEditorState() {
     return {
         // Getters y Setters para que la web pueda detectar los cambios
         get codigoGramatica() { return codigoGramatica; },
-        set codigoGramatica(v) { codigoGramatica = v; },
+        set codigoGramatica(codigo) { codigoGramatica = codigo; },
 
         get logConsola() { return logConsola; },
-        set logConsola(v) { logConsola = v; },
+        set logConsola(logSeleccionado) { logConsola = logSeleccionado; },
 
         get fila() { return fila; },
-        set fila(v) { fila = v; },
+        set fila(valor) { fila = valor; },
 
         get columna() { return columna; },
-        set columna(v) { columna = v; },
+        set columna(valor) { columna = valor; },
 
         get errores() { return errores; },
-        set errores(v) { errores = v; },
+        set errores(valor) { errores = valor; },
 
         get mostrarPresets() { return mostrarPresets; },
-        set mostrarPresets(v) { mostrarPresets = v; },
+        set mostrarPresets(presets) { mostrarPresets = presets; },
 
         get mostrarErrores() { return mostrarErrores; },
-        set mostrarErrores(v) { mostrarErrores = v; },
+        set mostrarErrores(valor) { mostrarErrores = valor; },
 
         get lineasArray() { return lineasArray; },
 
         //Metodo que permite actualizar la posicion del caret
-        actualizarPosicion(textarea) {
-            const textoHastaCursor = textarea.value.substring(0, textarea.selectionStart);
+        actualizarPosicion(textArea) {
+            const textoHastaCursor = textArea.value.substring(0, textArea.selectionStart);
             const lineas = textoHastaCursor.split("\n");
             fila = lineas.length;
             columna = lineas[lineas.length - 1].length + 1;
