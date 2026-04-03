@@ -46,7 +46,7 @@ export function createGrammarState() {
                 mostrarArbol = true;
                 // SIMULACION DE ERRORES QUEMADO DE MOMENTO
                 erroresValidacion = [
-                    { fila: 1, mensaje: "Token inesperado en la entrada" }
+                    { lexema: "(", Tipo: "sintactico", fila: 1, columna: 2, descripcion: "Token inesperado en la entrada" }
                 ];
             }
         }

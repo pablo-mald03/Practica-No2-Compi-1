@@ -138,7 +138,7 @@
                 >
                     <span class="small fw-bold"
                         ><i class="bi bi-exclamation-triangle-fill me-2"
-                        ></i>ERRORES DE VALIDACION</span
+                        ></i>ERRORES DE ANALISIS</span
                     >
                     <button
                         class="btn btn-sm text-white p-0"
@@ -157,25 +157,52 @@
                 </div>
                 {#if g.mostrarTablaErrores}
                     <div
-                        class="card-body p-0 overflow-auto"
-                        style="max-height: 150px;"
+                        class="card-body p-0 overflow-auto border-top border-secondary"
+                        style="max-height: 180px; background-color: #0a0f1a;"
                     >
                         <table
                             class="table table-dark table-hover mb-0 small text-monospace"
+                            style="--bs-table-bg: transparent;"
                         >
+                            <thead class="sticky-top bg-black">
+                                <tr
+                                    class="text-secondary border-secondary"
+                                    style="font-size: 0.75rem; border-bottom: 2px solid #1e293b !important;"
+                                >
+                                    <th class="ps-3 border-0">Lexema</th>
+                                    <th class="border-0">Tipo</th>
+                                    <th class="text-center border-0">Fila</th>
+                                    <th class="text-center border-0">Columna</th>
+                                    <th class="ps-3 border-0">Descripcion</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {#each g.erroresValidacion as error}
-                                    <tr class="border-secondary">
-                                        <td
-                                            class="text-danger ps-3"
-                                            style="width: 100px;">[ERROR]</td
+                                    <tr
+                                        class="align-middle border-secondary shadow-sm"
+                                    >
+                                        <td class="ps-3 text-danger fw-bold">
+                                            <code>{error.lexema || "EOF"}</code>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"
+                                                style="font-size: 0.65rem;"
+                                            >
+                                                {error.tipo || "Sintáctico"}
+                                            </span>
+                                        </td>
+                                        <td class="text-center text-info"
+                                            >{error.fila}</td
+                                        >
+                                        <td class="text-center text-info"
+                                            >{error.columna}</td
                                         >
                                         <td
-                                            class="text-secondary"
-                                            style="width: 120px;"
-                                            >Línea: {error.fila}</td
+                                            class="ps-3 text-white italic-text"
                                         >
-                                        <td>{error.mensaje}</td>
+                                            {error.descripcion}
+                                        </td>
                                     </tr>
                                 {/each}
                             </tbody>

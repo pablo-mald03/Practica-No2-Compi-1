@@ -1,54 +1,55 @@
 .gutter {
-        width: 45px;
-        background-color: #1e293b;
-        color: #4b5563;
-        font-family: "Fira Code", monospace;
-        font-size: 0.85rem;
-        text-align: right;
-        padding-top: 1rem;
-        padding-right: 10px;
-        overflow: hidden;
-        border-right: 1px solid #334155;
-    }
+    width: 45px;
+    background-color: #1e293b;
+    color: #4b5563;
+    font-family: "Fira Code", monospace;
+    font-size: 0.85rem;
+    text-align: right;
+    padding-top: 1rem;
+    padding-right: 10px;
+    overflow: hidden;
+    border-right: 1px solid #334155;
+}
 
-    .gutter-num {
-        height: 1.5rem;
-        line-height: 1.5rem;
-    }
+.gutter-num {
+    height: 1.5rem;
+    line-height: 1.5rem;
+}
 
-    .editor-textarea {
-        background: transparent !important;
-        height: 100%; /* <--- EL SECRETO ESTÁ AQUÍ */
-        font-family: "Fira Code", monospace;
-        font-size: 0.95rem;
-        line-height: 1.5rem;
-        padding: 1rem !important;
-        resize: none;
-        white-space: pre;
-        color: #e2e8f0 !important;
-    }
+.editor-textarea {
+    background: transparent !important;
+    height: 100%;
+    /* <--- EL SECRETO ESTÁ AQUÍ */
+    font-family: "Fira Code", monospace;
+    font-size: 0.95rem;
+    line-height: 1.5rem;
+    padding: 1rem !important;
+    resize: none;
+    white-space: pre;
+    color: #e2e8f0 !important;
+}
 
-    .editor-textarea::placeholder {
-        color: rgba(13, 202, 240, 0.5) !important;
-        font-style: italic;
-    }
+.editor-textarea::placeholder {
+    color: rgba(13, 202, 240, 0.5) !important;
+    font-style: italic;
+}
 
-    .editor-textarea::-webkit-input-placeholder {
-        color: rgba(13, 202, 240, 0.5) !important;
-    }
+.editor-textarea::-webkit-input-placeholder {
+    color: rgba(13, 202, 240, 0.5) !important;
+}
 
-    .editor-textarea:focus {
-        box-shadow: none;
-    }
+.editor-textarea:focus {
+    box-shadow: none;
+}
 
-    pre {
-        white-space: pre-wrap;
-    }
+pre {
+    white-space: pre-wrap;
+}
 
-    .select-none {
-        user-select: none;
-    }
+.select-none {
+    user-select: none;
+}
 
-    .status-bar {
-        font-size: 0.8rem;
-    }
+.status-bar {
+    font-size: 0.8rem;
+}

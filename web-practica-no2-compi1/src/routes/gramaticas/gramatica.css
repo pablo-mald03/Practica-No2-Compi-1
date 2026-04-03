@@ -51,3 +51,24 @@
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
+.bg-editor::placeholder {
+    color: #17b3da !important; 
+    opacity: 0.8;
+    font-style: italic;
+}
+
+
+.table-dark {
+    --bs-table-bg: transparent; 
+}
+
+.italic-text {
+    font-style: italic;
+    color: #94a3b8;
+}
+
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
