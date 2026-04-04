@@ -1,5 +1,9 @@
+//import del parser
+import parser from "$lib/analizador/wison-parser.js";
+
 //Funcion javaScript que permite crear la reactividad de la pagina web
 export function createEditorState() {
+
     //Se definen las variables que se usaran para operar de forma reactiva
     let codigoGramatica = $state("");
     let logConsola = $state("Wison Compiler v1.0.0\nEsperando entrada...");
@@ -60,16 +64,44 @@ export function createEditorState() {
 
         /*Metodo que permite compilar QUEMADO DE MOMENTO*/
         compilar() {
-            logConsola += "\n[INFO] Iniciando analisis...";
-            mostrarErrores = true;
-            errores = [
-                { lexema: "@", tipo: "Lexico", fila: 2, columna: 5, descripcion: "Error inesperado" },
-                { lexema: "(", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "Error inesperado" },
-                { lexema: "}", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "Error inesperado" },
-                { lexema: "}", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "Error inesperado" },
-                { lexema: "a= 0", tipo: "Semantico", fila: 2, columna: 5, descripcion: "Variable no definida" },
-                { lexema: "if", tipo: "Sintactico", fila: 2, columna: 5, descripcion: "token no registrado en la gramatica" }
-            ];
+            logConsola = "Wison Compiler v1.0.0\n[INFO] Iniciando analisis...";
+            this.errores = [];
+            this.mostrarErrores = false;
+
+            try {
+                parser.yy.errores = [];
+
+                parser.parseError = (str, hash) => {
+                    parser.yy.errores.push({
+                        lexema: hash.text || hash.token || "Desconocido",
+                        tipo: "Sintáctico",
+                        fila: hash.loc?.first_line || 1,
+                        columna: (hash.loc?.first_column || 0) + 1,
+                        descripcion: `Se esperaba: ${hash.expected ? hash.expected.join(", ") : "otro token"}`
+                    });
+                    throw new Error(str);
+                };
+
+                /* AST retornado por el analizador sintactico LALR */
+                const ast = parser.parse(this.codigoGramatica);
+
+                this.errores = parser.yy.errores;
+
+                if (this.errores.length > 0) {
+                    this.logConsola += `\n[WARNING] Análisis finalizado con ${this.errores.length} error(es) léxico(s).`;
+                    this.mostrarErrores = true;
+                    return null; 
+                }
+
+                this.logConsola += "\n[SUCCESS] Análisis completado con éxito.";
+                return ast;
+
+            } catch (e) {
+                this.errores = parser.yy.errores;
+                this.mostrarErrores = true;
+                this.logConsola += `\n[ERROR] Se detuvo el análisis por errores en la gramática.`;
+                return null;
+            }
         }
     };
 }

@@ -73,30 +73,228 @@
   }
 */
 var parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o};
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,13],$V1=[11,17],$V2=[1,27],$V3=[1,25],$V4=[1,26],$V5=[1,28],$V6=[1,29],$V7=[1,30],$V8=[1,31],$V9=[18,22,28,29,30,31,32,33,34],$Va=[7,18,22,26,27,28,29,30,31,32,33,34],$Vb=[1,48],$Vc=[1,50],$Vd=[1,49],$Ve=[11,40,41,42],$Vf=[1,64],$Vg=[1,65],$Vh=[22,45],$Vi=[18,22,41,45];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"inicio":3,"expresion":4,"EOF":5,"NUMERO":6,"MAS":7,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",6:"NUMERO",7:"MAS"},
-productions_: [0,[3,2],[4,3],[4,1]],
+symbols_: {"error":2,"inicio":3,"WISON":4,"QUEST_APERTURA":5,"cuerpo":6,"QUEST_CIERRE":7,"EOF":8,"LEX":9,"LLAVE_APERTURA":10,"DOS_PUNTOS":11,"estructura_lexica":12,"LLAVE_CIERRE":13,"SYNTAX_PARSER":14,"estructura_sintactica":15,"produccion_terminal":16,"TERMINAL":17,"ID_TERMINAL":18,"MENOR":19,"MENOS":20,"regla_lexica":21,"PUNTO_COMA":22,"elemento_lexico":23,"unidad_lexica":24,"modificador":25,"KLEENE":26,"MAS":27,"LITERAL_CADENA":28,"PARENT_APERTURA":29,"PARENT_CIERRE":30,"RANGO_NUMERO":31,"RANGO_MINUSCULA":32,"RANGO_MAYUSCULA":33,"RANGO_TOTAL":34,"lista_instrucciones_sintacticas":35,"instruccion_sintactica":36,"non_terminales":37,"sim_inicial":38,"regla_produccion":39,"NO_TERMINAL":40,"ID_NO_TERMINAL":41,"SIMBOLO_INICIAL":42,"IGUAL":43,"lista_alternativas":44,"OR_EXP":45,"cuerpo_produccion":46,"simbolo":47,"$accept":0,"$end":1},
+terminals_: {2:"error",4:"WISON",5:"QUEST_APERTURA",7:"QUEST_CIERRE",8:"EOF",9:"LEX",10:"LLAVE_APERTURA",11:"DOS_PUNTOS",13:"LLAVE_CIERRE",14:"SYNTAX_PARSER",17:"TERMINAL",18:"ID_TERMINAL",19:"MENOR",20:"MENOS",22:"PUNTO_COMA",26:"KLEENE",27:"MAS",28:"LITERAL_CADENA",29:"PARENT_APERTURA",30:"PARENT_CIERRE",31:"RANGO_NUMERO",32:"RANGO_MINUSCULA",33:"RANGO_MAYUSCULA",34:"RANGO_TOTAL",40:"NO_TERMINAL",41:"ID_NO_TERMINAL",42:"SIMBOLO_INICIAL",43:"IGUAL",45:"OR_EXP"},
+productions_: [0,[3,6],[6,14],[12,2],[12,1],[16,6],[21,2],[21,1],[23,2],[23,1],[25,1],[25,1],[25,1],[24,1],[24,3],[24,1],[24,1],[24,1],[24,1],[24,1],[15,1],[35,2],[35,1],[36,1],[36,1],[36,1],[37,3],[38,3],[39,5],[44,3],[44,1],[46,2],[46,1],[47,1],[47,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
- return $$[$0-1]; 
+ 
+        return $$[$0-3]; 
+    
 break;
 case 2:
- this.$ = Number($$[$0-2]) + Number($$[$0]); 
+
+        this.$ = {
+            lexico: $$[$0-10],
+            sintactico: $$[$0-3]
+        };
+    
 break;
 case 3:
- this.$ = Number($$[$0]); 
+
+                    $$[$0-1].push($$[$0]);
+                    this.$  = $$[$0-1];
+                
+break;
+case 4: case 7:
+
+                    this.$ = [$$[$0]];
+                
+break;
+case 5:
+
+
+                        this.$ = {
+                            tipo: 'TERMINAL',
+                            id: $$[$0-4],
+                            regla: $$[$0-1]
+                        }
+
+                    
+break;
+case 6:
+
+                    $$[$0-1].push($$[$0]);
+                    this.$ = $$[$0-1];
+                
+break;
+case 8:
+
+                    this.$ = {
+                        unidad: $$[$0-1], 
+                        modificador: $$[$0]
+                        };
+                
+break;
+case 9:
+
+                    this.$ ={
+                            unidad: $$[$0], 
+                            modificador: null
+                        };
+                
+break;
+case 10:
+
+                this.$ = '*';
+            
+break;
+case 11:
+
+                this.$ = '+';
+            
+break;
+case 12:
+
+                this.$ = '?';
+            
+break;
+case 13:
+
+                    this.$ = {
+                        tipo: 'CADENA',
+                        valor: $$[$0]
+                    };
+                
+break;
+case 14:
+
+                    this.$ = {
+                        tipo: 'AGRUPACION',
+                        contenido: $$[$0-1]
+                    };
+                
+break;
+case 15:
+
+                    this.$ = { 
+                            tipo: 'REFERENCIA_ID', 
+                            valor: $$[$0] 
+                    };
+                
+break;
+case 16:
+
+                    this.$ = { 
+                            tipo: 'RANGO', 
+                            valor: '[0-9]' 
+                    };
+                
+break;
+case 17:
+
+                    this.$ = { 
+                            tipo: 'RANGO', 
+                            valor: '[a-z]' 
+                    };
+                
+break;
+case 18:
+
+                    this.$ = { 
+                            tipo: 'RANGO', 
+                            valor: '[A-Z]' 
+                    };
+                
+break;
+case 19:
+
+                    this.$ = { 
+                            tipo: 'RANGO', 
+                            valor: '[a-zA-Z]' 
+                    };
+                
+break;
+case 20:
+
+                                this.$ = $$[$0];
+                            
+break;
+case 21:
+
+                                        $$[$0-1].push($$[$0]); 
+                                        this.$ = $$[$0-1];
+                                    
+break;
+case 22:
+
+                                        this.$ = [$$[$0]];
+                                    
+break;
+case 23: case 24: case 25:
+
+                        this.$ = $$[$0];
+                    
+break;
+case 26:
+
+                        this.$ = { 
+                                tipo: 'DECLARACION_NT', 
+                                id: $$[$0-1] 
+                        };
+                    
+break;
+case 27:
+
+                    this.$ = { 
+                            tipo: 'SIMBOLO_INICIAL', 
+                            id: $$[$0-1] 
+                    };
+                
+break;
+case 28:
+
+                        this.$ = {
+                            tipo: 'PRODUCCION',
+                            padre: $$[$0-4],
+                            alternativas: $$[$0-1]
+                        };
+                    
+break;
+case 29:
+
+                        $$[$0-2].push($$[$0]);
+                        this.$ = $$[$0-2];
+                    
+break;
+case 30: case 32:
+
+                        this.$ = [$$[$0]];
+                    
+break;
+case 31:
+
+                        $$[$0-1].push($$[$0]);
+                        this.$ = $$[$0-1];
+                    
+break;
+case 33:
+
+                this.$ = { 
+                        tipo: 'TERMINAL', 
+                        valor: $$[$0] 
+                };
+            
+break;
+case 34:
+
+                this.$ = { 
+                        tipo: 'NO_TERMINAL', 
+                        valor: $$[$0] 
+                };
+            
 break;
 }
 },
-table: [{3:1,4:2,6:[1,3]},{1:[3]},{5:[1,4]},{5:[2,3],7:[1,5]},{1:[2,1]},{6:[1,6]},{5:[2,2]}],
-defaultActions: {4:[2,1],6:[2,2]},
+table: [{3:1,4:[1,2]},{1:[3]},{5:[1,3]},{6:4,9:[1,5]},{7:[1,6]},{10:[1,7]},{4:[1,8]},{11:[1,9]},{8:[1,10]},{12:11,16:12,17:$V0},{1:[2,1]},{11:[1,14],16:15,17:$V0},o($V1,[2,4]),{18:[1,16]},{13:[1,17]},o($V1,[2,3]),{19:[1,18]},{14:[1,19]},{20:[1,20]},{10:[1,21]},{18:$V2,21:22,23:23,24:24,28:$V3,29:$V4,31:$V5,32:$V6,33:$V7,34:$V8},{10:[1,32]},{18:$V2,22:[1,33],23:34,24:24,28:$V3,29:$V4,31:$V5,32:$V6,33:$V7,34:$V8},o($V9,[2,7]),o($V9,[2,9],{25:35,7:[1,38],26:[1,36],27:[1,37]}),o($Va,[2,13]),{18:$V2,21:39,23:23,24:24,28:$V3,29:$V4,31:$V5,32:$V6,33:$V7,34:$V8},o($Va,[2,15]),o($Va,[2,16]),o($Va,[2,17]),o($Va,[2,18]),o($Va,[2,19]),{11:[1,40]},o($V1,[2,5]),o($V9,[2,6]),o($V9,[2,8]),o($V9,[2,10]),o($V9,[2,11]),o($V9,[2,12]),{18:$V2,23:34,24:24,28:$V3,29:$V4,30:[1,41],31:$V5,32:$V6,33:$V7,34:$V8},{15:42,35:43,36:44,37:45,38:46,39:47,40:$Vb,41:$Vc,42:$Vd},o($Va,[2,14]),{11:[1,51]},{11:[2,20],36:52,37:45,38:46,39:47,40:$Vb,41:$Vc,42:$Vd},o($Ve,[2,22]),o($Ve,[2,23]),o($Ve,[2,24]),o($Ve,[2,25]),{41:[1,53]},{41:[1,54]},{19:[1,55]},{13:[1,56]},o($Ve,[2,21]),{22:[1,57]},{22:[1,58]},{43:[1,59]},{13:[1,60]},o($Ve,[2,26]),o($Ve,[2,27]),{18:$Vf,41:$Vg,44:61,46:62,47:63},{7:[2,2]},{22:[1,66],45:[1,67]},o($Vh,[2,30],{47:68,18:$Vf,41:$Vg}),o($Vi,[2,32]),o($Vi,[2,33]),o($Vi,[2,34]),o($Ve,[2,28]),{18:$Vf,41:$Vg,46:69,47:63},o($Vi,[2,31]),o($Vh,[2,29],{47:68,18:$Vf,41:$Vg})],
+defaultActions: {10:[2,1],60:[2,2]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -573,58 +771,91 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:/* ignorar espacios */
 break;
-case 1:/*Ignorar comentario de linea*/
+case 1:/* Ignorar caracteres basura */
 break;
-case 2:/*Ignorar comentario multilinea*/ 
+case 2:/*Ignorar comentario de linea*/
 break;
-case 3:return '[0-9]';
+case 3:/*Ignorar comentario multilinea*/ 
 break;
-case 4:return '[a-z]';
+case 4:return 31;
 break;
-case 5:return '[A-Z]';
+case 5:return 32;
 break;
-case 6:return '[aA-zZ]';
+case 6:return 33;
 break;
-case 7:return 'WISON';
+case 7:return 34;
 break;
-case 8:return "LEX";
+case 8:return 4;
 break;
-case 9:return "TERMINAL";
+case 9:return 9;
 break;
-case 10:return "PARENT_APERTURA";
+case 10:return 17;
 break;
-case 11:return "PARENT_CIERRE";
+case 11:return 40;
 break;
-case 12:return "CORCHETE_CIERRE";
+case 12:return 14;
 break;
-case 13:return "CORCHETE_APERTURA";
+case 13:return 42;
 break;
-case 14:return "DOS_PUNTOS";
+case 14:return 29;
 break;
-case 15:return "MENOR";
+case 15:return 30;
 break;
-case 16:return "PUNTO_COMA";
+case 16:return 10;
 break;
-case 17:return "OR_EXP";
+case 17:return 13;
 break;
-case 18:return '-';
+case 18:return 'CORCHETE_APERTURA';
 break;
-case 19:return '+';
+case 19:return 'CORCHETE_CIERRE';
 break;
-case 20:return '*';
+case 20:return 11;
 break;
-case 21:return '¿';
+case 21:return 19;
 break;
-case 22:return '?';
+case 22:return 22;
 break;
-case 23:return 6;
+case 23:return 45;
 break;
-case 24:return 5;
+case 24:return 20;
+break;
+case 25:return 27;
+break;
+case 26:return 26;
+break;
+case 27:return 5;
+break;
+case 28:return 7;
+break;
+case 29:return 18;
+break;
+case 30:return 41;
+break;
+case 31: 
+                        yy_.yytext = yy_.yytext.slice(1, -1); 
+                        return 28; 
+                        
+break;
+case 32:return 43;
+break;
+case 33:
+                                if (!yy.errores) yy.errores = [];
+                                
+                                yy.errores.push({
+                                    lexema: yy_.yytext,
+                                    tipo: "Lexico",
+                                    fila: yy_.yylloc.first_line,
+                                    columna: yy_.yylloc.first_column + 1,
+                                    descripcion: "Caracter no valido en el lenguaje"
+                                });
+                            
+break;
+case 34:return 8;
 break;
 }
 },
-rules: [/^(?:\s+)/,/^(?:#.*)/,/^(?:\/\*\*([^*]|\*+[^*/])*(\*+\/))/,/^(?:\[0-9\])/,/^(?:\[a-z\])/,/^(?:\[A-Z\])/,/^(?:\[aA-zZ\])/,/^(?:Wison\b)/,/^(?:lex\b)/,/^(?:Terminal\b)/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?::)/,/^(?:<)/,/^(?:;)/,/^(?:\|)/,/^(?:-)/,/^(?:\+)/,/^(?:\*)/,/^(?:¿)/,/^(?:\?)/,/^(?:[0-9]+)/,/^(?:$)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],"inclusive":true}}
+rules: [/^(?:\s+)/,/^(?:[\u200B\uFEFF\u200E\u200F\u202A-\u202E]+)/,/^(?:#.*)/,/^(?:\/\*\*([^*]|\*+[^*/])*(\*+\/))/,/^(?:\[0-9\])/,/^(?:\[a-z\])/,/^(?:\[A-Z\])/,/^(?:\[aA-zZ\])/,/^(?:Wison\b)/,/^(?:Lex\b)/,/^(?:Terminal\b)/,/^(?:No_Terminal\b)/,/^(?:Syntax\b)/,/^(?:Initial_Sim\b)/,/^(?:\()/,/^(?:\))/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?::)/,/^(?:<)/,/^(?:;)/,/^(?:\|)/,/^(?:-)/,/^(?:\+)/,/^(?:\*)/,/^(?:¿)/,/^(?:\?)/,/^(?:\$_[a-zA-Z0-9_]+)/,/^(?:%_[a-zA-Z0-9_]+)/,/^(?:'[^']*')/,/^(?:=)/,/^(?:.)/,/^(?:$)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34],"inclusive":true}}
 });
 return lexer;
 })();
