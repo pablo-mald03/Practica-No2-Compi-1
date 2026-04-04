@@ -573,16 +573,58 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:/* ignorar espacios */
 break;
-case 1:return 6;
+case 1:/*Ignorar comentario de linea*/
 break;
-case 2:return 7;
+case 2:/*Ignorar comentario multilinea*/ 
 break;
-case 3:return 5;
+case 3:return '[0-9]';
+break;
+case 4:return '[a-z]';
+break;
+case 5:return '[A-Z]';
+break;
+case 6:return '[aA-zZ]';
+break;
+case 7:return 'WISON';
+break;
+case 8:return "LEX";
+break;
+case 9:return "TERMINAL";
+break;
+case 10:return "PARENT_APERTURA";
+break;
+case 11:return "PARENT_CIERRE";
+break;
+case 12:return "CORCHETE_CIERRE";
+break;
+case 13:return "CORCHETE_APERTURA";
+break;
+case 14:return "DOS_PUNTOS";
+break;
+case 15:return "MENOR";
+break;
+case 16:return "PUNTO_COMA";
+break;
+case 17:return "OR_EXP";
+break;
+case 18:return '-';
+break;
+case 19:return '+';
+break;
+case 20:return '*';
+break;
+case 21:return '¿';
+break;
+case 22:return '?';
+break;
+case 23:return 6;
+break;
+case 24:return 5;
 break;
 }
 },
-rules: [/^(?:\s+)/,/^(?:[0-9]+)/,/^(?:\+)/,/^(?:$)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3],"inclusive":true}}
+rules: [/^(?:\s+)/,/^(?:#.*)/,/^(?:\/\*\*([^*]|\*+[^*/])*(\*+\/))/,/^(?:\[0-9\])/,/^(?:\[a-z\])/,/^(?:\[A-Z\])/,/^(?:\[aA-zZ\])/,/^(?:Wison\b)/,/^(?:lex\b)/,/^(?:Terminal\b)/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?::)/,/^(?:<)/,/^(?:;)/,/^(?:\|)/,/^(?:-)/,/^(?:\+)/,/^(?:\*)/,/^(?:¿)/,/^(?:\?)/,/^(?:[0-9]+)/,/^(?:$)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],"inclusive":true}}
 });
 return lexer;
 })();
