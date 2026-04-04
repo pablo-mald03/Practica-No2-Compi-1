@@ -1,6 +1,8 @@
 //import del parser
 import parser from "$lib/analizador/wison-parser.js";
 
+import { tick } from "svelte";
+
 //Funcion javaScript que permite crear la reactividad de la pagina web
 export function createEditorState() {
 
@@ -63,45 +65,76 @@ export function createEditorState() {
         },
 
         /*Metodo que permite compilar QUEMADO DE MOMENTO*/
-        compilar() {
-            logConsola = "Wison Compiler v1.0.0\n[INFO] Iniciando analisis...";
-            this.errores = [];
+        async compilar() {
+          
+            this.logConsola = "Wison Compiler v1.0.0\n[INFO] Iniciando analisis...";
+            this.errores = []; 
             this.mostrarErrores = false;
 
+            await tick();
+
             try {
-                parser.yy.errores = [];
+
+                parser.yy = {
+                    errores: []
+                };
 
                 parser.parseError = (str, hash) => {
                     parser.yy.errores.push({
                         lexema: hash.text || hash.token || "Desconocido",
-                        tipo: "Sintáctico",
+                        tipo: "Sintactico",
                         fila: hash.loc?.first_line || 1,
                         columna: (hash.loc?.first_column || 0) + 1,
                         descripcion: `Se esperaba: ${hash.expected ? hash.expected.join(", ") : "otro token"}`
                     });
-                    throw new Error(str);
+                    return true;
                 };
 
                 /* AST retornado por el analizador sintactico LALR */
                 const ast = parser.parse(this.codigoGramatica);
 
-                this.errores = parser.yy.errores;
+                this.errores = [...parser.yy.errores];
 
                 if (this.errores.length > 0) {
-                    this.logConsola += `\n[WARNING] Análisis finalizado con ${this.errores.length} error(es) léxico(s).`;
+                    this.logConsola += `\n[ADVERTENCIA] Analisis finalizado con ${this.errores.length} errores.`;
                     this.mostrarErrores = true;
-                    return null; 
+                    return null;
                 }
 
-                this.logConsola += "\n[SUCCESS] Análisis completado con éxito.";
+                this.logConsola += "\n[EXITOSO] Analisis completado con exito.";
                 return ast;
 
             } catch (e) {
-                this.errores = parser.yy.errores;
-                this.mostrarErrores = true;
-                this.logConsola += `\n[ERROR] Se detuvo el análisis por errores en la gramática.`;
+                this.procesarErrorFatal(e);
                 return null;
             }
+        },
+
+        /* Metodo delegado auxiliar para procesar los errores */
+        procesarErrorFatal(e) {
+            let errorFatal;
+            if (e.hash) {
+                const h = e.hash;
+                errorFatal = {
+                    lexema: h.text || h.token || "EOF",
+                    tipo: "Sintactico",
+                    fila: h.loc?.first_line || "Desconocida",
+                    columna: (h.loc?.first_column || 0) + 1,
+                    descripcion: `Error. Se esperaba: ${h.expected ? h.expected.join(", ") : "fin de archivo"}`
+                };
+            } else {
+                errorFatal = {
+                    lexema: "N/A",
+                    tipo: "Sistema",
+                    fila: "N/A",
+                    columna: "N/A",
+                    descripcion: e.message
+                };
+            }
+
+            this.errores = [...this.errores, errorFatal];
+            this.mostrarErrores = true;
+            this.logConsola += `\n[ERROR] Analisis abortado por fallo critico.`;
         }
     };
 }

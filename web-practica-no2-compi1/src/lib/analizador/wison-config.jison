@@ -1,5 +1,6 @@
 /* Seccion analizador Lexico */
 %lex
+%options ranges yylineno
 %%
 /*Espacios y saltos de linea*/
 
@@ -123,6 +124,10 @@ inicio
     { 
         return $3; 
     }
+    | error EOF 
+    {
+        return null; 
+    }
     ;
 
 /*-----=====-----Produccion del cuerpo general de Wison-----=====-----*/
@@ -135,6 +140,14 @@ cuerpo
             lexico: $4,
             sintactico: $11
         };
+    }}
+    | error LLAVE_CIERRE LLAVE_CIERRE
+    {{
+
+        $$ = { 
+                lexico: null, 
+                sintactico: null 
+        }; 
     }}
     ;
 
@@ -164,6 +177,15 @@ produccion_terminal : TERMINAL ID_TERMINAL  MENOR MENOS regla_lexica PUNTO_COMA
                             regla: $5
                         }
 
+                    }}
+                    | error PUNTO_COMA
+                    {{
+                        $$ = {
+                                tipo: 'ERROR_SINTACTICO',
+                                descripcion: 'La produccion terminal contiene errores',
+                                fila: @1.first_line,
+                                columna: @1.first_column + 1
+                        };
                     }}
                     ;
 
@@ -304,6 +326,26 @@ instruccion_sintactica : non_terminales
                     | regla_produccion
                     {{
                         $$ = $1;
+                    }}
+                    | error PUNTO_COMA
+                    {{
+                        const nodoError = {
+                            tipo: 'ERROR_SINTACTICO',
+                            descripcion: 'Error declaracion no terminal. Estructura invalida antes del punto y coma.',
+                            fila: @1.first_line,
+                            columna: @1.first_column + 1
+                        };
+    
+
+                        yy.errores.push({
+                            lexema: yytext, 
+                            tipo: "Sintactico",
+                            fila: nodoError.fila,
+                            columna: nodoError.columna,
+                            descripcion: nodoError.descripcion
+                        });
+
+                        $$ = nodoError;
                     }}
                     ;
 
