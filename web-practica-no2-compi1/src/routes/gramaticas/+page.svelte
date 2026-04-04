@@ -254,43 +254,115 @@
                 <div
                     class="card-header card-custom bg-panel d-flex justify-content-between align-items-center"
                 >
-                    <span class="text-warning small fw-bold"
-                        ><i class="bi bi-diagram-3 me-2"></i>VISUALIZACION DEL
-                        ARBOL DE DERIVACION</span
-                    >
+                    <span class="text-warning small fw-bold">
+                        <i class="bi bi-diagram-3 me-2"></i>VISUALIZACION DEL
+                        ARBOL DE DERIVACION
+                    </span>
                     <div class="btn-group btn-group-sm">
                         <button
                             class="btn btn-outline-secondary text-white-50"
-                            aria-label="Aumentar zoom"
+                            aria-label="Zoom in"
+                            onclick={() => g.zoomIn()}
+                            ><i class="bi bi-zoom-in"></i></button
                         >
-                            <i class="bi bi-zoom-in"></i>
-                        </button>
                         <button
                             class="btn btn-outline-secondary text-white-50"
-                            aria-label="Disminuir zoom"
+                            aria-label="Zoom out"
+                            onclick={() => g.zoomOut()}
+                            ><i class="bi bi-zoom-out"></i></button
                         >
-                            <i class="bi bi-zoom-out"></i>
-                        </button>
                         <button
                             class="btn btn-outline-secondary text-white-50"
-                            aria-label="Ver en pantalla completa"
+                            aria-label="Zoom"
+                            onclick={() => g.resetCanvas()}
+                            ><i class="bi bi-arrows-fullscreen"></i></button
                         >
-                            <i class="bi bi-arrows-fullscreen"></i>
-                        </button>
                     </div>
                 </div>
-                <div class="card-body p-0 canvas-area">
+
+                <div
+                    class="card-body p-0 canvas-area position-relative outline-none"
+                    style="background-color: #050a15; cursor: {g.isDragging
+                        ? 'grabbing'
+                        : 'grab'};"
+                    role="application"
+                    aria-label="Lienzo interactivo"
+                    tabindex="0"
+                    onmousedown={(e) => g.iniciarDrag(e)}
+                    onmousemove={(e) => g.arrastrar(e)}
+                    onmouseup={() => g.detenerDrag()}
+                    onmouseleave={() => g.detenerDrag()}
+                    onwheel={(e) => g.hacerZoom(e)}
+                    onkeydown={(e) => {
+                        if (e.key === "Escape") g.resetCanvas();
+                    }}
+                >
                     {#if g.mostrarArbol}
+                        <svg class="w-100 h-100" style="pointer-events: none;">
+                            <defs>
+                                <filter
+                                    id="shadow"
+                                    x="-20%"
+                                    y="-20%"
+                                    width="140%"
+                                    height="140%"
+                                >
+                                    <feDropShadow
+                                        dx="0"
+                                        dy="4"
+                                        stdDeviation="4"
+                                        flood-opacity="0.3"
+                                        flood-color="#000"
+                                    />
+                                </filter>
+                            </defs>
+
+                            <g
+                                transform="translate({g.panX +
+                                    400}, {g.panY}) scale({g.zoom})"
+                            >
+                                {#each g.linksArbol as link}
+                                    <line
+                                        x1={link.source.x}
+                                        y1={link.source.y}
+                                        x2={link.target.x}
+                                        y2={link.target.y}
+                                        stroke="#1e293b"
+                                        stroke-width="2"
+                                    />
+                                {/each}
+
+                                {#each g.nodosArbol as nodo}
+                                    <g
+                                        transform="translate({nodo.x}, {nodo.y})"
+                                    >
+                                        <circle
+                                            r="20"
+                                            fill="#0f172a"
+                                            stroke="#38bdf8"
+                                            stroke-width="2"
+                                            filter="url(#shadow)"
+                                        />
+                                        <text
+                                            text-anchor="middle"
+                                            dominant-baseline="central"
+                                            fill="#e0e7ff"
+                                            font-family="monospace"
+                                            font-weight="bold"
+                                            font-size="14"
+                                        >
+                                            {nodo.label}
+                                        </text>
+                                    </g>
+                                {/each}
+                            </g>
+                        </svg>
+
                         <div
-                            class="w-100 h-100 d-flex align-items-center justify-content-center"
+                            class="position-absolute bottom-0 start-0 p-2 text-secondary small-text text-monospace"
+                            style="pointer-events: none;"
                         >
-                            <div class="text-center opacity-25">
-                                <i
-                                    class="bi bi-diagram-3"
-                                    style="font-size: 5rem;"
-                                ></i>
-                                <p>Renderizando Árbol de Derivación...</p>
-                            </div>
+                            Zoom: {Math.round(g.zoom * 100)}% | X: {g.panX} Y: {g.panY}
                         </div>
                     {:else}
                         <div
@@ -298,13 +370,29 @@
                         >
                             <p>
                                 <i class="bi bi-info-circle me-2"></i>Introduce
-                                una entrada valida para generar el arbol de derivacion de la gramatica
+                                una entrada valida para generar el arbol
                             </p>
                         </div>
                     {/if}
-                    <div class="canvas-grid-overlay"></div>
+
+                    <div
+                        class="canvas-grid-overlay"
+                        style="pointer-events: none;"
+                    ></div>
                 </div>
             </div>
         </div>
     </main>
+    <footer
+        class="py-2 px-4 border-top border-secondary text-center small text-white-50"
+        style="background-color: #1e293b;"
+    >
+        <div class="d-flex justify-content-between align-items-center">
+            <span>© 2026 Wison Compiler - Pablo-company</span>
+            <div>
+                <span class="me-3"><i class="bi bi-cpu me-1"></i> V 1.0.0</span>
+                <span><i class="bi bi-github me-1"></i> pablo-dev</span>
+            </div>
+        </div>
+    </footer>
 </div>

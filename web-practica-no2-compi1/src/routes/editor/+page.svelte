@@ -284,7 +284,7 @@
         style="background-color: #1e293b;"
     >
         <div class="d-flex justify-content-between align-items-center">
-            <span>© 2026 Wison Engine - Pablo-company</span>
+            <span>© 2026 Wison Compiler - Pablo-company</span>
             <div>
                 <span class="me-3"><i class="bi bi-cpu me-1"></i> V 1.0.0</span>
                 <span><i class="bi bi-github me-1"></i> pablo-dev</span>
