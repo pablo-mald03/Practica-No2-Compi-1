@@ -119,11 +119,14 @@
         "LLAVE_CIERRE": "'}'",
         "CORCHETE_APERTURA": "'['",
         "CORCHETE_CIERRE": "']'",
+        "QUEST_APERTURA": "'¿'",
+        "QUEST_CIERRE": "'?'",
+        "SYNTAX_PARSER": "la seccion 'Syntax'",
         "DOS_PUNTOS": "':'",
         "ID_TERMINAL": "identificador de terminal",
         "ID_NO_TERMINAL": "identificador de no terminal",
         "LEX": "la palabra reservada 'Lex'",
-        "SYNTAX_PARSER": "la secciAn 'Syntax'",
+        "SYNTAX_PARSER": "la seccion 'Syntax'",
         "EOF": "el fin del archivo"
     };
 
@@ -174,42 +177,72 @@
 
 /*-----=====-----Produccion principal de inicio-----=====-----*/
 
-inicio
-    : WISON QUEST_APERTURA cuerpo  QUEST_CIERRE WISON  EOF 
-    { 
-        return $3; 
-    }
-    | error EOF 
-    {
-        return null; 
-    }
-    ;
+inicio  : WISON QUEST_APERTURA cuerpo  QUEST_CIERRE WISON  EOF 
+        { 
+            return $3; 
+        }
+        | error EOF 
+        {
+            reportarError(yy, {
+                descripcion: 'Error fatal en la estructura principal del archivo Wison. Revisa las etiquetas WISON ? ... ? WISON.',
+                loc: @1,
+                texto: yytext
+            });
+
+            return null; 
+        }
+        ;
 
 /*-----=====-----Produccion del cuerpo general de Wison-----=====-----*/
 
-cuerpo 
-    : LEX LLAVE_APERTURA DOS_PUNTOS estructura_lexica DOS_PUNTOS LLAVE_CIERRE SYNTAX_PARSER  
-    LLAVE_APERTURA LLAVE_APERTURA DOS_PUNTOS estructura_sintactica DOS_PUNTOS LLAVE_CIERRE LLAVE_CIERRE
-    {{
-        $$ = {
-            lexico: $4,
-            sintactico: $11
-        };
-    }}
-    | error LLAVE_CIERRE LLAVE_CIERRE
-    {{
-        reportarError(yy, {
-            descripcion: 'Error en el cuerpo de Wison. Se esperaba: ' + traducirEsperados(['LEX', 'SYNTAX_PARSER']),
-            loc: @1,
-            texto: yytext
-        });
+cuerpo      : bloque_lexico bloque_sintactico
+            {{
+                $$ = {
+                    lexico: $1,
+                    sintactico: $2
+                };
+            }}
+            ;
 
-        $$ = { 
-                lexico: null, 
-                sintactico: null 
-        };
-    }}
-    ;
+
+/*-----=====-----Produccion para el bloque lexico-----=====-----*/
+
+bloque_lexico   : LEX LLAVE_APERTURA DOS_PUNTOS estructura_lexica DOS_PUNTOS LLAVE_CIERRE
+                {{
+                    $$ = $4;
+                }}
+                | error LLAVE_CIERRE
+                {{
+                    reportarError(yy, {
+                        descripcion: 'Error en la seccion Lex. Se esperaba una estructura correcta (Lex {:  ...  :}).',
+                        loc: @1,
+                        texto: yytext
+                    });
+
+                    $$ = null; 
+                }}
+                ;
+
+
+/*-----=====-----Produccion para el bloque sintactico-----=====-----*/
+
+bloque_sintactico   : SYNTAX_PARSER LLAVE_APERTURA LLAVE_APERTURA DOS_PUNTOS estructura_sintactica DOS_PUNTOS LLAVE_CIERRE LLAVE_CIERRE
+                    {{
+                        $$ = $5;
+                    }}
+                    | error LLAVE_CIERRE LLAVE_CIERRE
+                    {{
+                        reportarError(yy, {
+                            descripcion: 'Error en la seccion Syntax. Se esperaba la estructura correcta (Syntax {{:  ...  :}' + '}).',
+                            loc: @1,
+                            texto: yytext
+                        });
+
+                        $$ = null; 
+                    }}
+                    ;
+
+
 
 /*-----=====-----Produccion que define a la estructura lexica-----=====-----*/
 
