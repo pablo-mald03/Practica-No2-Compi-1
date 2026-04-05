@@ -223,15 +223,15 @@ case 18:
                     this.$ = {
                         unidad: $$[$0-1], 
                         modificador: $$[$0]
-                        };
+                    };
                 
 break;
 case 19:
 
                     this.$ ={
-                            unidad: $$[$0], 
-                            modificador: null
-                        };
+                        unidad: $$[$0], 
+                        modificador: null
+                    };
                 
 break;
 case 20:
@@ -253,7 +253,9 @@ case 23:
 
                     this.$ = {
                         tipo: 'CADENA',
-                        valor: $$[$0]
+                        valor: $$[$0],
+                        fila: _$[$0].first_line,   
+                        columna: _$[$0].first_column + 1
                     };
                 
 break;
@@ -261,47 +263,59 @@ case 24:
 
                     this.$ = {
                         tipo: 'AGRUPACION',
-                        contenido: $$[$0-1]
+                        contenido: $$[$0-1],
+                        fila: _$[$0-1].first_line,   
+                        columna: _$[$0-1].first_column + 1
                     };
                 
 break;
 case 25:
 
                     this.$ = { 
-                            tipo: 'REFERENCIA_ID', 
-                            valor: $$[$0] 
+                        tipo: 'REFERENCIA_ID', 
+                        valor: $$[$0],
+                        fila: _$[$0].first_line,   
+                        columna: _$[$0].first_column + 1
                     };
                 
 break;
 case 26:
 
                     this.$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[0-9]' 
+                        tipo: 'RANGO', 
+                        valor: '[0-9]',
+                        fila: _$[$0].first_line,   
+                        columna: _$[$0].first_column + 1
                     };
                 
 break;
 case 27:
 
                     this.$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[a-z]' 
+                        tipo: 'RANGO', 
+                        valor: '[a-z]',
+                        fila: _$[$0].first_line,   
+                        columna: _$[$0].first_column + 1
                     };
                 
 break;
 case 28:
 
                     this.$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[A-Z]' 
+                        tipo: 'RANGO', 
+                        valor: '[A-Z]',
+                        fila: _$[$0].first_line,   
+                        columna: _$[$0].first_column + 1
                     };
                 
 break;
 case 29:
 
                     this.$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[a-zA-Z]' 
+                        tipo: 'RANGO', 
+                        valor: '[a-zA-Z]',
+                        fila: _$[$0].first_line,   
+                        columna: _$[$0].first_column + 1
                     };
                 
 break;
@@ -338,16 +352,20 @@ break;
 case 37:
 
                         this.$ = { 
-                                tipo: 'DECLARACION_NO_TERMINAL', 
-                                id: $$[$0-1] 
+                            tipo: 'DECLARACION_NO_TERMINAL', 
+                            id: $$[$0-1],
+                            fila: _$[$0-1].first_line,   
+                            columna: _$[$0-1].first_column + 1
                         };
                     
 break;
 case 38:
 
                         this.$ = { 
-                                tipo: 'SIMBOLO_INICIAL', 
-                            id: $$[$0-1] 
+                            tipo: 'SIMBOLO_INICIAL', 
+                            id: $$[$0-1],
+                            fila: _$[$0-1].first_line,   
+                            columna: _$[$0-1].first_column + 1
                         };
                     
 break;
@@ -356,7 +374,9 @@ case 39:
                         this.$ = {
                             tipo: 'PRODUCCION',
                             padre: $$[$0-4],
-                            alternativas: $$[$0-1]
+                            alternativas: $$[$0-1],
+                            fila: _$[$0-4].first_line,   
+                            columna: _$[$0-4].first_column + 1
                         };
                     
 break;
@@ -380,16 +400,20 @@ break;
 case 44:
 
                 this.$ = { 
-                        tipo: 'TERMINAL', 
-                        valor: $$[$0] 
+                    tipo: 'TERMINAL', 
+                    valor: $$[$0],
+                    fila: _$[$0].first_line,   
+                    columna: _$[$0].first_column + 1 
                 };
             
 break;
 case 45:
 
                 this.$ = { 
-                        tipo: 'NO_TERMINAL', 
-                        valor: $$[$0] 
+                    tipo: 'NO_TERMINAL', 
+                    valor: $$[$0],
+                    fila: _$[$0].first_line,   
+                    columna: _$[$0].first_column + 1 
                 };
             
 break;

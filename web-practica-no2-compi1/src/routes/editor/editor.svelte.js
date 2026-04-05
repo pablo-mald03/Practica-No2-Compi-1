@@ -1,6 +1,6 @@
 //import del parser
 import parser from "$lib/analizador/wison-parser.js";
-import AnalizadorSemantico from "$lib/backend/AnalizadorSemantico.js";
+import GestorCompilador from "$lib/backend/GestorCompilador";
 import { tick } from "svelte";
 
 //Funcion javaScript que permite crear la reactividad de la pagina web
@@ -17,7 +17,7 @@ export function createEditorState() {
     let mostrarPresets = $state(true);
 
     /*Estado para minimizar y maximizar la tabla de errores*/
-    let mostrarErrores = $state(true);
+    let mostrarErrores = $state(true);0
 
     //Registro de las lineas que tiene el editor de texto
     let lineasArray = $derived(codigoGramatica.split("\n").map((_, i) => i + 1));
@@ -29,6 +29,10 @@ export function createEditorState() {
     /*Variables del estado del modal de resultado */
     let mostrarModalResultado = $state(false);
     let datosResultado = $state({ tipo: "exito", titulo: "", mensaje: "" });
+
+
+    /*Variable que permite manejar al controlador del analizador sintactico LL1 */
+    let gestorCompilacion = new GestorCompilador();
 
     //Se retorna el objeto para poderse usar en el HTML en el DOM
     return {
@@ -61,6 +65,8 @@ export function createEditorState() {
 
         get mostrarModalResultado() { return mostrarModalResultado; },
         get datosResultado() { return datosResultado; },
+
+        get gestorCompilacion() { return gestorCompilacion; },
 
         /*Metodo que permite cargar un archivo de entrada*/
         cargarDesdeArchivo(event) {
@@ -97,8 +103,8 @@ export function createEditorState() {
         // Metodo para cuando el usuario le da "Cancelar" en el modal
         cerrarModal() {
             mostrarModalExito = false;
-            astGenerado = null;
-            this.logConsola += `\n[INFO] Operacion de guardado cancelada.`;
+            this.astGenerado = null;
+            this.logConsola += `\n\n[INFO] Operacion de guardado cancelada.`;
         },
 
         //Metodo que permite actualizar la posicion del caret
@@ -238,10 +244,8 @@ export function createEditorState() {
                 this.logConsola += "\n\n[INFO] Sintaxis correcta. Iniciando analisis semantico...";
 
                 /*Delegacion de validacion al analizador semantico de la gramatica  */
-                const semantico = new AnalizadorSemantico(ast);
-
                 /*Validacion y retorno (PATRON EXPERTO) */
-                const { astValidado, errores: erroresSemanticos } = semantico.analizarCodigo();
+                const { astValidado, errores: erroresSemanticos } = gestorCompilacion.generarAnalisis(ast);
 
                 if (erroresSemanticos.length > 0) {
 

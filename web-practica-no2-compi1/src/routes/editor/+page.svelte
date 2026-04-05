@@ -86,7 +86,7 @@
                                 onclick={() =>
                                     e.cargarPreset("mayus-letras", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                <i class="bi bi-file-earmark-code-fill me-2 text-info"></i>ER
                                 Letras Mayusculas
                             </button>
                             <button
@@ -94,7 +94,7 @@
                                 onclick={() =>
                                     e.cargarPreset("min-letras", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                <i class="bi bi-file-earmark-code me-2 text-info"></i>ER
                                 Letras Minuscrulas
                             </button>
                             <button
@@ -102,7 +102,7 @@
                                 onclick={() =>
                                     e.cargarPreset("letras-total", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                <i class="bi bi-file-earmark-code-fill me-2 text-info"></i>ER
                                 Letras
                             </button>
                             <button
@@ -110,7 +110,7 @@
                                 onclick={() =>
                                     e.cargarPreset("numeros", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                <i class="bi bi-file-earmark-code me-2 text-info"></i>ER
                                 Numeros
                             </button>
                         </div>

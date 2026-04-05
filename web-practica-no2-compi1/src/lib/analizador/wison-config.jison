@@ -248,14 +248,14 @@ bloque_sintactico   : SYNTAX_PARSER LLAVE_APERTURA LLAVE_APERTURA DOS_PUNTOS est
 
 estructura_lexica 
                 : estructura_lexica produccion_terminal
-                {
+                {{
                     $1.push($2);
                     $$  = $1;
-                }
+                }}
                 | produccion_terminal
-                {
+                {{
                     $$ = [$1];
-                }
+                }}
                 ;
 
 
@@ -321,14 +321,14 @@ produccion_terminal : TERMINAL ID_TERMINAL  MENOR MENOS regla_lexica PUNTO_COMA
 /*-----=====-----Producciones individuales del apartado lexico-----=====-----*/
 
 regla_lexica    : regla_lexica elemento_lexico
-                {
+                {{
                     $1.push($2);
                     $$ = $1;
-                }
+                }}
                 | elemento_lexico
-                {
+                {{
                     $$ = [$1];
-                }
+                }}
                 ;
 
 
@@ -339,14 +339,14 @@ elemento_lexico : unidad_lexica modificador
                     $$ = {
                         unidad: $1, 
                         modificador: $2
-                        };
+                    };
                 }}
                 | unidad_lexica 
                 {{
                     $$ ={
-                            unidad: $1, 
-                            modificador: null
-                        };
+                        unidad: $1, 
+                        modificador: null
+                    };
                 }}
                 ;
 
@@ -373,49 +373,63 @@ unidad_lexica   : LITERAL_CADENA
                 {{
                     $$ = {
                         tipo: 'CADENA',
-                        valor: $1
+                        valor: $1,
+                        fila: @1.first_line,   
+                        columna: @1.first_column + 1
                     };
                 }}
                 | PARENT_APERTURA regla_lexica PARENT_CIERRE
                 {{
                     $$ = {
                         tipo: 'AGRUPACION',
-                        contenido: $2
+                        contenido: $2,
+                        fila: @2.first_line,   
+                        columna: @2.first_column + 1
                     };
                 }}
                 | ID_TERMINAL 
                 {{
                     $$ = { 
-                            tipo: 'REFERENCIA_ID', 
-                            valor: $1 
+                        tipo: 'REFERENCIA_ID', 
+                        valor: $1,
+                        fila: @1.first_line,   
+                        columna: @1.first_column + 1
                     };
                 }}
                 | RANGO_NUMERO 
                 {{
                     $$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[0-9]' 
+                        tipo: 'RANGO', 
+                        valor: '[0-9]',
+                        fila: @1.first_line,   
+                        columna: @1.first_column + 1
                     };
                 }}
                 | RANGO_MINUSCULA
                 {{
                     $$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[a-z]' 
+                        tipo: 'RANGO', 
+                        valor: '[a-z]',
+                        fila: @1.first_line,   
+                        columna: @1.first_column + 1
                     };
                 }}
                 | RANGO_MAYUSCULA
                 {{
                     $$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[A-Z]' 
+                        tipo: 'RANGO', 
+                        valor: '[A-Z]',
+                        fila: @1.first_line,   
+                        columna: @1.first_column + 1
                     };
                 }}
                 | RANGO_TOTAL
                 {{
                     $$ = { 
-                            tipo: 'RANGO', 
-                            valor: '[a-zA-Z]' 
+                        tipo: 'RANGO', 
+                        valor: '[a-zA-Z]',
+                        fila: @1.first_line,   
+                        columna: @1.first_column + 1
                     };
                 }}
                 ;
@@ -472,8 +486,10 @@ instruccion_sintactica : non_terminales
 non_terminales      : NO_TERMINAL ID_NO_TERMINAL PUNTO_COMA
                     {{
                         $$ = { 
-                                tipo: 'DECLARACION_NO_TERMINAL', 
-                                id: $2 
+                            tipo: 'DECLARACION_NO_TERMINAL', 
+                            id: $2,
+                            fila: @2.first_line,   
+                            columna: @2.first_column + 1
                         };
                     }}
                     ;
@@ -484,8 +500,10 @@ non_terminales      : NO_TERMINAL ID_NO_TERMINAL PUNTO_COMA
 sim_inicial         : SIMBOLO_INICIAL ID_NO_TERMINAL PUNTO_COMA
                     {{
                         $$ = { 
-                                tipo: 'SIMBOLO_INICIAL', 
-                            id: $2 
+                            tipo: 'SIMBOLO_INICIAL', 
+                            id: $2,
+                            fila: @2.first_line,   
+                            columna: @2.first_column + 1
                         };
                     }}
                     ;
@@ -498,7 +516,9 @@ regla_produccion    : ID_NO_TERMINAL MENOR IGUAL lista_alternativas PUNTO_COMA
                         $$ = {
                             tipo: 'PRODUCCION',
                             padre: $1,
-                            alternativas: $4
+                            alternativas: $4,
+                            fila: @1.first_line,   
+                            columna: @1.first_column + 1
                         };
                     }}
                     ;
@@ -535,15 +555,19 @@ cuerpo_produccion : cuerpo_produccion simbolo
 simbolo     : ID_TERMINAL    
             {{
                 $$ = { 
-                        tipo: 'TERMINAL', 
-                        valor: $1 
+                    tipo: 'TERMINAL', 
+                    valor: $1,
+                    fila: @1.first_line,   
+                    columna: @1.first_column + 1 
                 };
             }}
             | ID_NO_TERMINAL
             {{
                 $$ = { 
-                        tipo: 'NO_TERMINAL', 
-                        valor: $1 
+                    tipo: 'NO_TERMINAL', 
+                    valor: $1,
+                    fila: @1.first_line,   
+                    columna: @1.first_column + 1 
                 };
             }}
             ;
