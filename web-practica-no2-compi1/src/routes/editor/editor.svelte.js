@@ -84,24 +84,69 @@ export function createEditorState() {
         },
 
         /*Metodo que permite cargar un preset para poder insertar codigo*/
-        cargarPreset(tipo) {
-            if (tipo === "calculadora") {
-                codigoGramatica = `%lex\n%%\n"+" return '+';\n[0-9]+ return 'NUM';\n/lex\n%%\nexp: exp '+' NUM | NUM;`;
+        async cargarPreset(tipo, textArea) {
+            let snippet = "";
+
+            if (tipo === "Cuerpo-Wison") {
+                snippet = `Wison ¿\n\n/**-----Cuerpo del Lexer-----*/\n\nLex {:\n\n\n\n:}\n\n/**-----Cuerpo del Parser-----*/\n\nSyntax {{:\n\n\n\n:}}\n\n? Wison`;
+            } else if (tipo === "terminal") {
+                snippet = `Terminal $_Opcion_A    <- 'a';    #Nombre 'Opcion_A' modificable`;
+            } else if (tipo === "no-terminal") {
+                snippet = `No_Terminal %_Prod_A;    #Nombre 'Prod_A' modificable`;
+            } else if (tipo === "simbolo-init") {
+                snippet = `Initial_Sim %_Simbolo;    #Nombre 'Simbolo' modificable`;
+            } else if (tipo === "produccion") {
+                snippet = `%_Simbolo <= %_No_Terminal $_Terminal ;    #Establecer producciones`;
+            } else if (tipo === "mayus-letras") {
+                snippet = `[A-Z]`;
+            } else if (tipo === "min-letras") {
+                snippet = `[a-z]`;
+            } else if (tipo === "letras-total") {
+                snippet = `[aA-zZ]`;
+            } else if (tipo === "numeros") {
+                snippet = `[0-9]`;
             }
-            logConsola += `\n[INFO] Preset "${tipo}" cargado.`;
+
+            if (!snippet) return;
+
+            const actual = this.codigoGramatica;
+
+            if (!textArea) {
+                this.codigoGramatica += (actual ? "\n" : "") + snippet;
+                this.logConsola += `\n\n[INFO] Preset "${tipo}" agregado al final.`;
+                return;
+            }
+
+            const inicio = textArea.selectionStart;
+            const fin = textArea.selectionEnd;
+
+            const textoAntes = actual.substring(0, inicio);
+            const textoDespues = actual.substring(fin);
+
+
+            this.codigoGramatica = textoAntes + snippet + textoDespues;
+
+            await tick();
+
+            const nuevaPosicion = inicio + snippet.length;
+
+            textArea.focus();
+            textArea.setSelectionRange(nuevaPosicion, nuevaPosicion);
+
+            this.actualizarPosicion(textArea);
         },
 
         // Metodo para cuando el usuario le da a guardar en el modal y se guarda la gramatica
         guardarGramatica(nombre) {
 
-            this.mostrarModalExito = false; 
+            this.mostrarModalExito = false;
             this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;
 
             // TIMEOUT QUEMADO
             setTimeout(() => {
-                
+
                 /*constante QUEMADA DE MOMENTO */
-                const backendRespondioBien = false; 
+                const backendRespondioBien = false;
 
                 if (backendRespondioBien) {
                     datosResultado = {
@@ -120,7 +165,7 @@ export function createEditorState() {
                 }
 
                 mostrarModalResultado = true;
-                
+
             }, 800);
         },
 
@@ -206,9 +251,6 @@ export function createEditorState() {
             this.mostrarErrores = true;
             this.logConsola += `\n\n[ERROR] Analisis abortado por fallo critico.`;
         },
-
-
-        /*Apartado de metodos que permiten generar las interaciciones con el modal de mensajes*/
 
 
     };

@@ -1,8 +1,8 @@
 <script>
     import "./editor.css";
     import { createEditorState } from "./editor.svelte.js";
-    import ModalGuardar from './componentes/notificaciones/ModalGuardar.svelte';
-    import ModalResultado from './componentes/notificaciones/ModalResultado.svelte';
+    import ModalGuardar from "./componentes/notificaciones/ModalGuardar.svelte";
+    import ModalResultado from "./componentes/notificaciones/ModalResultado.svelte";
 
     //Se inicializa el estado
     const e = createEditorState();
@@ -20,7 +20,6 @@
         handleScroll();
         e.actualizarPosicion(event.target);
     }
-
 </script>
 
 <div
@@ -43,17 +42,66 @@
                         <div class="card-body p-2">
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("calculadora")}
+                                onclick={() => e.cargarPreset("Cuerpo-Wison", elTextarea)}
                             >
                                 <i class="bi bi-plus-circle me-2 text-info"
-                                ></i>Calculadora
+                                ></i>Estructura Wison
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("if-else")}
+                                onclick={() => e.cargarPreset("terminal", elTextarea)}
+                            >
+                                <i class="bi bi-regex me-2 text-info"
+                                ></i>Terminal
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("no-terminal", elTextarea)}
                             >
                                 <i class="bi bi-alt me-2 text-info"
-                                ></i>Condicionales
+                                ></i>No Terminal
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("simbolo-init", elTextarea)}
+                            >
+                                <i class="bi bi-code me-2 text-info"
+                                ></i>Simbolo Inicial
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("produccion", elTextarea)}
+                            >
+                                <i class="bi bi-braces me-2 text-info"
+                                ></i>Produccion
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("mayus-letras", elTextarea)}
+                            >
+                                <i class="bi bi-braces me-2 text-info"
+                                ></i>ER Letras Mayusculas
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("min-letras", elTextarea)}
+                            >
+                                <i class="bi bi-braces me-2 text-info"
+                                ></i>ER Letras Minuscrulas
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("letras-total", elTextarea)}
+                            >
+                                <i class="bi bi-braces me-2 text-info"
+                                ></i>ER Letras
+                            </button>
+                            <button
+                                class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
+                                onclick={() => e.cargarPreset("numeros", elTextarea)}
+                            >
+                                <i class="bi bi-braces me-2 text-info"
+                                ></i>ER Numeros
                             </button>
                         </div>
                     </div>
@@ -98,10 +146,7 @@
                         class="card-body p-0 position-relative d-flex flex-grow-1"
                         style="background-color: #0f172a; overflow: hidden;"
                     >
-                        <div
-                            class="gutter select-none overflow-hidden"
-                            bind:this={elGutter}
-                        >
+                        <div class="gutter" bind:this={elGutter}>
                             {#each e.lineasArray as n}
                                 <div
                                     class="gutter-num"
@@ -111,6 +156,7 @@
                                 </div>
                             {/each}
                         </div>
+
                         <textarea
                             bind:this={elTextarea}
                             class="form-control border-0 text-white editor-textarea flex-grow-1"
@@ -144,7 +190,8 @@
                             onclick={() => {
                                 e.codigoGramatica = "";
                                 e.errores = [];
-                                e.logConsola = "Wison Compiler v1.0.0\n\nEsperando entrada...";
+                                e.logConsola =
+                                    "Wison Compiler v1.0.0\n\nEsperando entrada...";
                             }}
                             aria-label="compilar gramatica"
                         >
@@ -221,8 +268,7 @@
                                         {#each e.errores as err}
                                             <tr class="align-middle">
                                                 <td class="py-1 px-3">
-                                                    <code
-                                                        class="text-info"
+                                                    <code class="text-info"
                                                         >{err.lexema}</code
                                                     >
                                                 </td>
@@ -297,9 +343,8 @@
     </footer>
 </div>
 
-
 {#if e.mostrarModalExito}
-    <ModalGuardar 
+    <ModalGuardar
         titulo="Analisis Exitoso"
         mensaje="La gramatica se genero correctamente. ¿Deseas guardarla para poder usarla?"
         onCancelar={() => e.cerrarModal()}
@@ -308,7 +353,7 @@
 {/if}
 
 {#if e.mostrarModalResultado}
-    <ModalResultado 
+    <ModalResultado
         tipo={e.datosResultado.tipo}
         titulo={e.datosResultado.titulo}
         mensaje={e.datosResultado.mensaje}

@@ -1,14 +1,15 @@
 .gutter {
-    width: 45px;
-    background-color: #1e293b;
+    width: 50px; 
+    background-color: #0f172a;
     color: #4b5563;
     font-family: "Fira Code", monospace;
-    font-size: 0.85rem;
+    font-size: 0.95rem; 
     text-align: right;
-    padding-top: 1rem;
+    padding-top: 1rem; 
     padding-right: 10px;
     overflow: hidden;
     border-right: 1px solid #334155;
+    user-select: none;
 }
 
 .gutter-num {
@@ -18,14 +19,13 @@
 
 .editor-textarea {
     background: transparent !important;
-    height: 100%;
-    /* <--- EL SECRETO ESTÁ AQUÍ */
     font-family: "Fira Code", monospace;
     font-size: 0.95rem;
-    line-height: 1.5rem;
+    line-height: 1.5rem; 
     padding: 1rem !important;
     resize: none;
     white-space: pre;
+    overflow-x: auto;
     color: #e2e8f0 !important;
 }
 
