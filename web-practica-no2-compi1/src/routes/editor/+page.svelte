@@ -1,6 +1,8 @@
 <script>
     import "./editor.css";
     import { createEditorState } from "./editor.svelte.js";
+    import ModalGuardar from './componentes/notificaciones/ModalGuardar.svelte';
+    import ModalResultado from './componentes/notificaciones/ModalResultado.svelte';
 
     //Se inicializa el estado
     const e = createEditorState();
@@ -18,6 +20,7 @@
         handleScroll();
         e.actualizarPosicion(event.target);
     }
+
 </script>
 
 <div
@@ -141,6 +144,7 @@
                             onclick={() => {
                                 e.codigoGramatica = "";
                                 e.errores = [];
+                                e.logConsola = "Wison Compiler v1.0.0\n\nEsperando entrada...";
                             }}
                             aria-label="compilar gramatica"
                         >
@@ -292,3 +296,22 @@
         </div>
     </footer>
 </div>
+
+
+{#if e.mostrarModalExito}
+    <ModalGuardar 
+        titulo="Analisis Exitoso"
+        mensaje="La gramatica se genero correctamente. ¿Deseas guardarla para poder usarla?"
+        onCancelar={() => e.cerrarModal()}
+        onGuardar={(nombre) => e.guardarGramatica(nombre)}
+    />
+{/if}
+
+{#if e.mostrarModalResultado}
+    <ModalResultado 
+        tipo={e.datosResultado.tipo}
+        titulo={e.datosResultado.titulo}
+        mensaje={e.datosResultado.mensaje}
+        onAceptar={() => e.cerrarModalResultado()}
+    />
+{/if}

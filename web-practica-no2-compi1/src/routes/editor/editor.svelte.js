@@ -8,7 +8,7 @@ export function createEditorState() {
 
     //Se definen las variables que se usaran para operar de forma reactiva
     let codigoGramatica = $state("");
-    let logConsola = $state("Wison Compiler v1.0.0\nEsperando entrada...");
+    let logConsola = $state("Wison Compiler v1.0.0\n\nEsperando entrada...");
     let fila = $state(1);
     let columna = $state(1);
     let errores = $state([]);
@@ -21,6 +21,14 @@ export function createEditorState() {
 
     //Registro de las lineas que tiene el editor de texto
     let lineasArray = $derived(codigoGramatica.split("\n").map((_, i) => i + 1));
+
+    /*Variables para manejar el modal de notificaciones*/
+    let mostrarModalExito = $state(false);
+    let astGenerado = null;
+
+    /*Variables del estado del modal de resultado */
+    let mostrarModalResultado = $state(false);
+    let datosResultado = $state({ tipo: "exito", titulo: "", mensaje: "" });
 
     //Se retorna el objeto para poderse usar en el HTML en el DOM
     return {
@@ -48,6 +56,25 @@ export function createEditorState() {
 
         get lineasArray() { return lineasArray; },
 
+        get mostrarModalExito() { return mostrarModalExito; },
+        set mostrarModalExito(valor) { mostrarModalExito = valor; },
+
+        get mostrarModalResultado() { return mostrarModalResultado; },
+        get datosResultado() { return datosResultado; },
+
+        /*Metodo que permite cerrar el modal del resultado de guardado */
+
+        cerrarModalResultado() {
+            mostrarModalResultado = false;
+        },
+
+        // Metodo para cuando el usuario le da "Cancelar" en el modal
+        cerrarModal() {
+            mostrarModalExito = false;
+            astGenerado = null;
+            this.logConsola += `\n[INFO] Operacion de guardado cancelada.`;
+        },
+
         //Metodo que permite actualizar la posicion del caret
         actualizarPosicion(textArea) {
             const textoHastaCursor = textArea.value.substring(0, textArea.selectionStart);
@@ -64,12 +91,46 @@ export function createEditorState() {
             logConsola += `\n[INFO] Preset "${tipo}" cargado.`;
         },
 
+        // Metodo para cuando el usuario le da a guardar en el modal y se guarda la gramatica
+        guardarGramatica(nombre) {
+
+            this.mostrarModalExito = false; 
+            this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;
+
+            // TIMEOUT QUEMADO
+            setTimeout(() => {
+                
+                /*constante QUEMADA DE MOMENTO */
+                const backendRespondioBien = false; 
+
+                if (backendRespondioBien) {
+                    datosResultado = {
+                        tipo: "exito",
+                        titulo: "Guardado Exitoso",
+                        mensaje: `La gramatica "${nombre}" se ha guardado correctamente en la aplicacion.`
+                    };
+                    this.logConsola += `\n\n[EXITOSO] Gramatica guardada en la aplicacion.`;
+                } else {
+                    datosResultado = {
+                        tipo: "error",
+                        titulo: "Error al Guardar",
+                        mensaje: `No se pudo guardar la gramatica "${nombre}". Verifica tu conexion o intenta mas tarde.`
+                    };
+                    this.logConsola += `\n\n[ERROR] Fallo de conexion con la API.`;
+                }
+
+                mostrarModalResultado = true;
+                
+            }, 800);
+        },
+
         /*Metodo que permite compilar QUEMADO DE MOMENTO*/
         async compilar() {
 
-            this.logConsola = "Wison Compiler v1.0.0\n[INFO] Iniciando analisis...";
+            this.logConsola = "Wison Compiler v1.0.0\n\n[INFO] Iniciando analisis...";
             this.errores = [];
             this.mostrarErrores = false;
+            this.mostrarModalExito = false;
 
             await tick();
 
@@ -98,12 +159,17 @@ export function createEditorState() {
                 this.errores = [...parser.yy.errores];
 
                 if (this.errores.length > 0) {
-                    this.logConsola += `\n[ADVERTENCIA] Analisis finalizado con ${this.errores.length} errores.`;
+                    this.logConsola += `\n\n[ADVERTENCIA] Analisis finalizado con ${this.errores.length} errores.`;
                     this.mostrarErrores = true;
                     return null;
                 }
 
-                this.logConsola += "\n[EXITOSO] Analisis completado con exito.";
+                this.logConsola += "\n\n[EXITOSO] Analisis completado con exito.";
+
+                //Guardado del arbol
+                astGenerado = ast;
+                this.mostrarModalExito = true;
+
                 return ast;
 
             } catch (e) {
@@ -138,8 +204,12 @@ export function createEditorState() {
 
             this.errores = [...this.errores, errorFatal];
             this.mostrarErrores = true;
-            this.logConsola += `\n[ERROR] Analisis abortado por fallo critico.`;
+            this.logConsola += `\n\n[ERROR] Analisis abortado por fallo critico.`;
         },
+
+
+        /*Apartado de metodos que permiten generar las interaciciones con el modal de mensajes*/
+
 
     };
 }
