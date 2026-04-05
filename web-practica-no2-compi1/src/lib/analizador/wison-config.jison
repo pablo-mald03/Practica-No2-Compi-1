@@ -111,6 +111,59 @@
 
 /*---****===== Seccion del analizador Sintactico =====****---*/
 
+%{
+    /* Diccionario para traducir tokens técnicos a nombres amigables */
+    const diccionarioTokens = {
+        "PUNTO_COMA": "';'",
+        "LLAVE_APERTURA": "'{'",
+        "LLAVE_CIERRE": "'}'",
+        "DOS_PUNTOS": "':'",
+        "ID_TERMINAL": "un identificador de terminal",
+        "ID_NO_TERMINAL": "un identificador de no terminal",
+        "LEX": "la palabra reservada 'Lex'",
+        "SYNTAX_PARSER": "la sección 'Syntax_Parser'",
+        "EOF": "el fin del archivo"
+    };
+
+    /* Función auxiliar para reportar errores al arreglo global */
+    function reportarError(yy, info) {
+        const nuevoError = {
+            tipo: 'ERROR_SINTACTICO',
+            descripcion: info.descripcion,
+            fila: info.loc.first_line,
+            columna: info.loc.first_column + 1
+        };
+    
+        yy.errores.push({
+            lexema: info.texto || "N/A",
+            tipo: "Sintactico",
+            fila: nuevoError.fila,
+            columna: nuevoError.columna,
+            descripcion: nuevoError.descripcion
+        });
+    
+        return nuevoError;
+    } 
+
+    /* Función auxiliar para traducir los tokens esperados que Jison provee */
+    function traducirEsperados(esperados) {
+
+        if (!esperados || esperados.length === 0) return "algo diferente";
+
+        const traducidos = esperados.map(token => {
+            const tokenLimpio = token.replace(/'/g, "");
+            return diccionarioTokens[tokenLimpio] || tokenLimpio;
+        });
+
+        if (traducidos.length > 1) {
+            const ultimo = traducidos.pop();
+            return traducidos.join(", ") + " o " + ultimo;
+        }
+        return traducidos[0];
+    }
+%}
+
+
 /*----Simbolo inicial----*/
 
 %start inicio
@@ -143,11 +196,16 @@ cuerpo
     }}
     | error LLAVE_CIERRE LLAVE_CIERRE
     {{
+        reportarError(yy, {
+            descripcion: 'Error en el cuerpo de Wison. Se esperaba: ' + traducirEsperados(['LEX', 'SYNTAX_PARSER']),
+            loc: @1,
+            texto: yytext
+        });
 
         $$ = { 
                 lexico: null, 
                 sintactico: null 
-        }; 
+        };
     }}
     ;
 
@@ -178,14 +236,23 @@ produccion_terminal : TERMINAL ID_TERMINAL  MENOR MENOS regla_lexica PUNTO_COMA
                         }
 
                     }}
+                    | TERMINAL ID_TERMINAL  MENOR MENOS  PUNTO_COMA
+                    {{
+                        $$ = reportarError(yy, {
+                            descripcion: 'Error declaracion terminal. Se esperaba una expresion regular.',
+                            loc: @4, 
+                            texto: $1 + " " + $2
+                        });
+
+                    }}
                     | error PUNTO_COMA
                     {{
-                        $$ = {
-                                tipo: 'ERROR_SINTACTICO',
-                                descripcion: 'La produccion terminal contiene errores',
-                                fila: @1.first_line,
-                                columna: @1.first_column + 1
-                        };
+
+                        $$ = reportarError(yy, {
+                            descripcion: 'Error declaracion terminal. Estructura invalida antes del punto y coma.',
+                            loc: @1,
+                            texto: yytext
+                        });
                     }}
                     ;
 
@@ -329,23 +396,11 @@ instruccion_sintactica : non_terminales
                     }}
                     | error PUNTO_COMA
                     {{
-                        const nodoError = {
-                            tipo: 'ERROR_SINTACTICO',
-                            descripcion: 'Error declaracion no terminal. Estructura invalida antes del punto y coma.',
-                            fila: @1.first_line,
-                            columna: @1.first_column + 1
-                        };
-    
-
-                        yy.errores.push({
-                            lexema: yytext, 
-                            tipo: "Sintactico",
-                            fila: nodoError.fila,
-                            columna: nodoError.columna,
-                            descripcion: nodoError.descripcion
+                        $$ = reportarError(yy, {
+                            descripcion: 'Error declaracion sintactica. Estructura invalida antes del punto y coma.',
+                            loc: @1,
+                            texto: yytext
                         });
-
-                        $$ = nodoError;
                     }}
                     ;
 

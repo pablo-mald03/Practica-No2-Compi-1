@@ -22,6 +22,20 @@ export function createEditorState() {
     //Registro de las lineas que tiene el editor de texto
     let lineasArray = $derived(codigoGramatica.split("\n").map((_, i) => i + 1));
 
+    /*Diccionario o hashmap de los terminales para poder traducir los expected tokens*/
+    const diccionarioTokens = {
+        "PUNTO_COMA": "';'",
+        "LLAVE_APERTURA": "'{'",
+        "LLAVE_CIERRE": "'}'",
+        "DOS_PUNTOS": "':'",
+        "ID_TERMINAL": "'terminal'",
+        "ID_NO_TERMINAL": "'no terminal'",
+        "LEX": "palabra reservada 'Lex'",
+        "SYNTAX_PARSER": "la 'declaracion del parser'",
+        "EOF": "el fin del archivo"
+
+    };
+
     //Se retorna el objeto para poderse usar en el HTML en el DOM
     return {
         // Getters y Setters para que la web pueda detectar los cambios
@@ -66,9 +80,9 @@ export function createEditorState() {
 
         /*Metodo que permite compilar QUEMADO DE MOMENTO*/
         async compilar() {
-          
+
             this.logConsola = "Wison Compiler v1.0.0\n[INFO] Iniciando analisis...";
-            this.errores = []; 
+            this.errores = [];
             this.mostrarErrores = false;
 
             await tick();
@@ -80,14 +94,16 @@ export function createEditorState() {
                 };
 
                 parser.parseError = (str, hash) => {
+                    const esperadosLimpios = this.traducirEsperados(hash.expected);
+
                     parser.yy.errores.push({
                         lexema: hash.text || hash.token || "Desconocido",
                         tipo: "Sintactico",
                         fila: hash.loc?.first_line || 1,
                         columna: (hash.loc?.first_column || 0) + 1,
-                        descripcion: `Se esperaba: ${hash.expected ? hash.expected.join(", ") : "otro token"}`
+                        descripcion: `Se esperaba: ${esperadosLimpios}`
                     });
-                    return true;
+
                 };
 
                 /* AST retornado por el analizador sintactico LALR */
@@ -115,12 +131,14 @@ export function createEditorState() {
             let errorFatal;
             if (e.hash) {
                 const h = e.hash;
+                const esperadosLimpios = this.traducirEsperados(h.expected);
+
                 errorFatal = {
                     lexema: h.text || h.token || "EOF",
                     tipo: "Sintactico",
                     fila: h.loc?.first_line || "Desconocida",
                     columna: (h.loc?.first_column || 0) + 1,
-                    descripcion: `Error. Se esperaba: ${h.expected ? h.expected.join(", ") : "fin de archivo"}`
+                    descripcion: `Error critico. Se esperaba: ${esperadosLimpios}`
                 };
             } else {
                 errorFatal = {
@@ -135,6 +153,19 @@ export function createEditorState() {
             this.errores = [...this.errores, errorFatal];
             this.mostrarErrores = true;
             this.logConsola += `\n[ERROR] Analisis abortado por fallo critico.`;
+        },
+
+        /*Metodo auxiliar que permite traducir los tokens esperados */
+        traducirEsperados(esperados) {
+            if (!esperados || esperados.length === 0) return "otro token";
+
+            const traducidos = esperados.map(token => {
+                const tokenLimpio = token.replace(/'/g, "");
+
+                return diccionarioTokens[tokenLimpio] || tokenLimpio;
+            });
+
+            return traducidos.join(", ");
         }
     };
 }
