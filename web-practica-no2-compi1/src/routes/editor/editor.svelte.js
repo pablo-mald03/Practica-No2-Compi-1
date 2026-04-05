@@ -22,20 +22,6 @@ export function createEditorState() {
     //Registro de las lineas que tiene el editor de texto
     let lineasArray = $derived(codigoGramatica.split("\n").map((_, i) => i + 1));
 
-    /*Diccionario o hashmap de los terminales para poder traducir los expected tokens*/
-    const diccionarioTokens = {
-        "PUNTO_COMA": "';'",
-        "LLAVE_APERTURA": "'{'",
-        "LLAVE_CIERRE": "'}'",
-        "DOS_PUNTOS": "':'",
-        "ID_TERMINAL": "'terminal'",
-        "ID_NO_TERMINAL": "'no terminal'",
-        "LEX": "palabra reservada 'Lex'",
-        "SYNTAX_PARSER": "la 'declaracion del parser'",
-        "EOF": "el fin del archivo"
-
-    };
-
     //Se retorna el objeto para poderse usar en el HTML en el DOM
     return {
         // Getters y Setters para que la web pueda detectar los cambios
@@ -155,17 +141,5 @@ export function createEditorState() {
             this.logConsola += `\n[ERROR] Analisis abortado por fallo critico.`;
         },
 
-        /*Metodo auxiliar que permite traducir los tokens esperados */
-        traducirEsperados(esperados) {
-            if (!esperados || esperados.length === 0) return "otro token";
-
-            const traducidos = esperados.map(token => {
-                const tokenLimpio = token.replace(/'/g, "");
-
-                return diccionarioTokens[tokenLimpio] || tokenLimpio;
-            });
-
-            return traducidos.join(", ");
-        }
     };
 }

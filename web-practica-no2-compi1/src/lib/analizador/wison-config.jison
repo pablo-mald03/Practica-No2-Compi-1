@@ -117,11 +117,13 @@
         "PUNTO_COMA": "';'",
         "LLAVE_APERTURA": "'{'",
         "LLAVE_CIERRE": "'}'",
+        "CORCHETE_APERTURA": "'['",
+        "CORCHETE_CIERRE": "']'",
         "DOS_PUNTOS": "':'",
-        "ID_TERMINAL": "un identificador de terminal",
-        "ID_NO_TERMINAL": "un identificador de no terminal",
+        "ID_TERMINAL": "identificador de terminal",
+        "ID_NO_TERMINAL": "identificador de no terminal",
         "LEX": "la palabra reservada 'Lex'",
-        "SYNTAX_PARSER": "la sección 'Syntax_Parser'",
+        "SYNTAX_PARSER": "la secciAn 'Syntax'",
         "EOF": "el fin del archivo"
     };
 
@@ -236,12 +238,39 @@ produccion_terminal : TERMINAL ID_TERMINAL  MENOR MENOS regla_lexica PUNTO_COMA
                         }
 
                     }}
+                    | TERMINAL ID_TERMINAL  MENOR MENOS  regla_lexica
+                    {{
+                        $$ = reportarError(yy, {
+                            descripcion: 'Error declaracion terminal. Se esperaba: punto y coma.',
+                            loc: @5, 
+                            texto: $1 + " " + $2
+                        });
+
+                    }}
                     | TERMINAL ID_TERMINAL  MENOR MENOS  PUNTO_COMA
                     {{
                         $$ = reportarError(yy, {
-                            descripcion: 'Error declaracion terminal. Se esperaba una expresion regular.',
+                            descripcion: 'Error declaracion terminal. Se esperaba: una expresion regular.',
                             loc: @4, 
+                            texto: $1 + " " + $2 + " " + $3 + " " + $4
+                        });
+
+                    }}
+                    | TERMINAL ID_TERMINAL
+                    {{
+                        $$ = reportarError(yy, {
+                            descripcion: 'Error declaracion terminal. Se esperaba: la expresion <-.',
+                            loc: @2, 
                             texto: $1 + " " + $2
+                        });
+
+                    }}
+                    | TERMINAL
+                    {{
+                        $$ = reportarError(yy, {
+                            descripcion: 'Error declaracion terminal. Se esperaba: el nombre del terminal.',
+                            loc: @1, 
+                            texto: $1
                         });
 
                     }}
@@ -410,7 +439,7 @@ instruccion_sintactica : non_terminales
 non_terminales      : NO_TERMINAL ID_NO_TERMINAL PUNTO_COMA
                     {{
                         $$ = { 
-                                tipo: 'DECLARACION_NT', 
+                                tipo: 'DECLARACION_NO_TERMINAL', 
                                 id: $2 
                         };
                     }}
@@ -419,14 +448,14 @@ non_terminales      : NO_TERMINAL ID_NO_TERMINAL PUNTO_COMA
 
 /*-----=====-----Produccion del simbolo inicial de la gramatica-----=====-----*/
 
-sim_inicial     : SIMBOLO_INICIAL ID_NO_TERMINAL PUNTO_COMA
-                {{
-                    $$ = { 
-                            tipo: 'SIMBOLO_INICIAL', 
+sim_inicial         : SIMBOLO_INICIAL ID_NO_TERMINAL PUNTO_COMA
+                    {{
+                        $$ = { 
+                                tipo: 'SIMBOLO_INICIAL', 
                             id: $2 
-                    };
-                }}
-                ;
+                        };
+                    }}
+                    ;
 
 
 /*-----=====-----Produccion que define a la declaracion de las reglas de producion de la gramatica-----=====-----*/
