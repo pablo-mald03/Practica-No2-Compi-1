@@ -1,6 +1,6 @@
 //import del parser
 import parser from "$lib/analizador/wison-parser.js";
-
+import AnalizadorSemantico from "$lib/backend/AnalizadorSemantico.js";
 import { tick } from "svelte";
 
 //Funcion javaScript que permite crear la reactividad de la pagina web
@@ -61,6 +61,32 @@ export function createEditorState() {
 
         get mostrarModalResultado() { return mostrarModalResultado; },
         get datosResultado() { return datosResultado; },
+
+        /*Metodo que permite cargar un archivo de entrada*/
+        cargarDesdeArchivo(event) {
+            const archivo = event.target.files[0];
+            if (!archivo) return;
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const contenido = e.target.result;
+
+                const separador = this.codigoGramatica.trim() === "" ? "" : "\n\n";
+                this.codigoGramatica += separador + contenido;
+
+                this.logConsola += `\n\n[EXITOSO] Se ha importado: "${archivo.name}" (${archivo.size} bytes).`;
+
+                event.target.value = "";
+            };
+
+            reader.onerror = () => {
+                this.logConsola += `\n[ERROR] No se pudo leer el archivo "${archivo.name}".`;
+            };
+
+            reader.readAsText(archivo);
+        },
+
 
         /*Metodo que permite cerrar el modal del resultado de guardado */
 
@@ -209,13 +235,30 @@ export function createEditorState() {
                     return null;
                 }
 
+                this.logConsola += "\n\n[INFO] Sintaxis correcta. Iniciando analisis semantico...";
+
+                /*Delegacion de validacion al analizador semantico de la gramatica  */
+                const semantico = new AnalizadorSemantico(ast);
+
+                /*Validacion y retorno (PATRON EXPERTO) */
+                const { astValidado, errores: erroresSemanticos } = semantico.analizarCodigo();
+
+                if (erroresSemanticos.length > 0) {
+
+                    this.errores = [...this.errores, ...erroresSemanticos];
+
+                    this.logConsola += `\n\n[ERROR] Analisis Semantico fallo con ${erroresSemanticos.length} errores.`;
+                    this.mostrarErrores = true;
+                    return null; 
+                }
+
                 this.logConsola += "\n\n[EXITOSO] Analisis completado con exito.";
 
-                //Guardado del arbol
-                astGenerado = ast;
+                //Guardado del AST para la siguiente fase de generacion LL(1)
+                astGenerado = astValidado;
                 this.mostrarModalExito = true;
 
-                return ast;
+                return astValidado;
 
             } catch (e) {
                 this.procesarErrorFatal(e);

@@ -9,6 +9,7 @@
 
     let elTextarea;
     let elGutter;
+    let elFileInput;
 
     /*Metodo que permite verificar el estado del scroll*/
     function handleScroll() {
@@ -42,66 +43,75 @@
                         <div class="card-body p-2">
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("Cuerpo-Wison", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("Cuerpo-Wison", elTextarea)}
                             >
                                 <i class="bi bi-plus-circle me-2 text-info"
                                 ></i>Estructura Wison
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("terminal", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("terminal", elTextarea)}
                             >
                                 <i class="bi bi-regex me-2 text-info"
                                 ></i>Terminal
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("no-terminal", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("no-terminal", elTextarea)}
                             >
-                                <i class="bi bi-alt me-2 text-info"
-                                ></i>No Terminal
+                                <i class="bi bi-alt me-2 text-info"></i>No
+                                Terminal
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("simbolo-init", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("simbolo-init", elTextarea)}
                             >
-                                <i class="bi bi-code me-2 text-info"
-                                ></i>Simbolo Inicial
+                                <i class="bi bi-code me-2 text-info"></i>Simbolo
+                                Inicial
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("produccion", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("produccion", elTextarea)}
                             >
                                 <i class="bi bi-braces me-2 text-info"
                                 ></i>Produccion
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("mayus-letras", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("mayus-letras", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"
-                                ></i>ER Letras Mayusculas
+                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                Letras Mayusculas
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("min-letras", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("min-letras", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"
-                                ></i>ER Letras Minuscrulas
+                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                Letras Minuscrulas
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("letras-total", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("letras-total", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"
-                                ></i>ER Letras
+                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                Letras
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
-                                onclick={() => e.cargarPreset("numeros", elTextarea)}
+                                onclick={() =>
+                                    e.cargarPreset("numeros", elTextarea)}
                             >
-                                <i class="bi bi-braces me-2 text-info"
-                                ></i>ER Numeros
+                                <i class="bi bi-braces me-2 text-info"></i>ER
+                                Numeros
                             </button>
                         </div>
                     </div>
@@ -185,6 +195,23 @@
                         class="card-footer border-secondary text-end"
                         style="background-color: #1e293b;"
                     >
+                        <input
+                            type="file"
+                            accept=".txt"
+                            class="d-none"
+                            bind:this={elFileInput}
+                            onchange={(ev) => e.cargarDesdeArchivo(ev)}
+                        />
+
+                        <button
+                            class="btn btn-outline-info me-2"
+                            onclick={() => elFileInput.click()}
+                            aria-label="cargar archivo"
+                            title="Cargar archivo .txt"
+                        >
+                            <i class="bi bi-file-earmark-arrow-up"></i>
+                        </button>
+                        
                         <button
                             class="btn btn-outline-warning me-2"
                             onclick={() => {
