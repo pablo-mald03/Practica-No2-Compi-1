@@ -172,6 +172,10 @@ export function createEditorState() {
         guardarGramatica(nombre) {
 
             this.mostrarModalExito = false;
+
+            /*Metodo que permite generar el LL(1) PATRON EXPERTO */
+
+
             this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;
 
             // TIMEOUT QUEMADO
@@ -260,6 +264,21 @@ export function createEditorState() {
 
                 //Guardado del AST para la siguiente fase de generacion LL(1)
                 astGenerado = astValidado;
+                
+                /*Fase de generacion dela tabla LL(1)  (SEGUNDA FASE)*/
+
+                const { erroresAmbiguos } = gestorCompilacion.generarLL1();
+
+                if (erroresAmbiguos.length > 0) {
+
+                    this.errores = [...this.errores, ...erroresAmbiguos];
+
+                    this.logConsola += `\n\n[AMBIGUEDAD] Se ha detectado ambiguedad. Se registraron: ${erroresAmbiguos.length} colisiones.`;
+                    this.mostrarErrores = true;
+                    return null; 
+                }
+
+
                 this.mostrarModalExito = true;
 
                 return astValidado;

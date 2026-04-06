@@ -47,7 +47,7 @@ export default class AnalizadorSemantico {
     /*Metodo que permite ejecutar la validacion del apartado lexico de Wison */
     procesarParteLexica() {
         if (!this.ast || !this.ast.lexico) {
-            this.agregarError("AST", "La estructura de Wison esta incompleta.", -1, -1)
+            this.agregarError("AST", "La estructura de Wison esta incompleta.", -1, -1);
             return;
         }
 
@@ -212,7 +212,7 @@ export default class AnalizadorSemantico {
         }
     }
 
-    /*Metodo que permite agregar los erroes a la lista */
+    /*Metodo que permite agregar los errores a la lista */
     agregarError(lex, desc, fila, columna) {
         this.erroresSemanticos.push({
             lexema: lex,

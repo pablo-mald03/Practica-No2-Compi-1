@@ -541,16 +541,34 @@ lista_alternativas  : lista_alternativas OR_EXP cuerpo_produccion
 
 /*-----=====-----Produccion que define al cuerpo de las producciones de Wison-----=====-----*/
 
-cuerpo_produccion : cuerpo_produccion simbolo
+cuerpo_produccion : lista_simbolos
                     {{
-                        $1.push($2);
                         $$ = $1;
                     }}
-                    | simbolo
+                    | /*Produccion vacia*/
                     {{
-                        $$ = [$1];
+                        $$ = [{
+                            tipo: 'LAMBDA',
+                            valor: 'LAMBDA',
+                            fila: yylineno + 1, 
+                            columna: yyleng + 1
+                        }];
                     }}
                     ;
+
+
+/*-----=====-----Produccion que define al listado de producciones dentro  de Wison-----=====-----*/
+lista_simbolos      : lista_simbolos simbolo 
+                    {{
+                        $1.push($2); 
+                        $$ = $1; 
+                    }}
+                    | simbolo 
+                    {{ 
+                        $$ = [$1]; 
+                    }}
+                    ;
+
 
 /*-----=====-----Produccion que a todas las variantes que tienen las producciones de la gramatica-----=====-----*/
 
