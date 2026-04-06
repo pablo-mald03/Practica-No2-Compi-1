@@ -157,7 +157,9 @@ case 10:
                         this.$ = {
                             tipo: 'TERMINAL',
                             id: $$[$0-4],
-                            regla: $$[$0-1]
+                            regla: $$[$0-1],
+                            fila: _$[$0-4].first_line,    
+                            columna: _$[$0-4].first_column + 1
                         }
 
                     

@@ -267,7 +267,9 @@ produccion_terminal : TERMINAL ID_TERMINAL  MENOR MENOS regla_lexica PUNTO_COMA
                         $$ = {
                             tipo: 'TERMINAL',
                             id: $2,
-                            regla: $5
+                            regla: $5,
+                            fila: @2.first_line,    
+                            columna: @2.first_column + 1
                         }
 
                     }}

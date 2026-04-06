@@ -12,19 +12,24 @@ export default class GestorCompilador {
     }
 
     /*Metodo que permite generar el analisis semantico */
-    generarAnalisis(astJison){
+    generarAnalisis(astJison) {
 
         this.limpiarEntorno();
 
         const semantico = new AnalizadorSemantico(astJison, this.tablaSimbolosGlobal);
         const resultado = semantico.analizarCodigo();
 
-
         if (resultado.errores.length === 0) {
             this.ast = resultado.astFinal;
+            this.tablaSimbolosGlobal = resultado.tablaSimbolosFinal;
+        } else {
+            this.tablaSimbolosGlobal = new TablaSimbolos();
         }
 
-        return resultado;
+        return {
+            astValidado: this.ast,
+            errores: resultado.errores
+        };
     }
 
 

@@ -14,7 +14,7 @@ export default class TablaSimbolos{
 
     /*Metodo que permite obtener algun simbolo ya registrado dentro */
     obtener(id){
-        return this.get(id);
+        return this.tabla.get(id);
     }
 
     /*Metodo que permite evaluar si existe ya un simbolo registrado*/
@@ -27,3 +27,4 @@ export default class TablaSimbolos{
         this.tabla.clear();
     }
 }
+/*Created by Pablo */
