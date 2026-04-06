@@ -2,6 +2,7 @@
 import TablaSimbolos from "./TablaSimbolos.js";
 import AnalizadorSemantico from "./AnalizadorSemantico.js";
 import GestorTablaLL from "./recursos-parser/GestorTablaLL.js";
+import GestorAnalizadorLL from "./recursos-parser/GestorAnalizadorLL.js";
 
 /*Clase delegada que representa el gestor de todo el backend que requiera la aplicacion */
 
@@ -11,6 +12,7 @@ export default class GestorCompilador {
         this.ast = null;
         this.tablaSimbolosGlobal = new TablaSimbolos();
         this.gestorTablaLL = null;
+        this.gestorAnalizadorLLTabla = null;
 
         /*Representacion de la tabla LL(1) */
         this.tablaLL1 = new Map();
@@ -58,6 +60,29 @@ export default class GestorCompilador {
 
     }
 
+    /*FASE 3: Generar el analizador sintactico recursivo para poder subirlo a la API y generar persistencia*/
+    generarAnalizadorLL(nombreAnalizador){
+
+        if (!this.ast) {
+            return { 
+                lexerJison: "",
+                parserLL: ""
+            };
+        }
+
+        this.gestorAnalizadorLLTabla = new GestorAnalizadorLL(this.ast,this.tablaLL1,this.tablaSimbolosGlobal);
+
+        const { nombreGenerado, lexerGenerado, parserGenerado } = this.gestorAnalizadorLLTabla.generarAnalizadores(nombreAnalizador);
+
+
+        return{
+            nombreArchivo: nombreGenerado,
+            lexerJison: lexerGenerado,
+            parserLL: parserGenerado
+        };
+
+    }
+
 
     /*Metodo que permite limpiar el gestor (Para siempre mantener a la referencia viva) */
     limpiarEntorno() {
@@ -65,6 +90,8 @@ export default class GestorCompilador {
         this.tablaSimbolosGlobal.limpiar();
         this.gestorTablaLL = null;
         this.tablaLL1 = null;
+        this.gestorAnalizadorLLTabla = null;
     }
 
 }
+/*Created by Pablo */

@@ -2,7 +2,7 @@
 import parser from "$lib/analizador/wison-parser.js";
 import GestorCompilador from "$lib/backend/GestorCompilador";
 import { tick } from "svelte";
-
+/*Created by Pablo */
 //Funcion javaScript que permite crear la reactividad de la pagina web
 export function createEditorState() {
 
@@ -173,8 +173,15 @@ export function createEditorState() {
 
             this.mostrarModalExito = false;
 
-            /*Metodo que permite generar el LL(1) PATRON EXPERTO */
+            /*Metodo que permite generar los archivos para generar el analizador PATRON EXPERTO */
+            const {nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
 
+            /*Pendiente hacer el POST a la API (PATRON EXPERTO) */
+
+            console.log(nombreArchivo);
+            console.log("\n");
+            console.log(lexerJison);
+            
 
             this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;
 
@@ -274,6 +281,7 @@ export function createEditorState() {
                     this.errores = [...this.errores, ...erroresAmbiguos];
 
                     this.logConsola += `\n\n[AMBIGUEDAD] Se ha detectado ambiguedad. Se registraron: ${erroresAmbiguos.length} colisiones.`;
+
                     this.mostrarErrores = true;
                     return null; 
                 }
@@ -318,6 +326,6 @@ export function createEditorState() {
             this.logConsola += `\n\n[ERROR] Analisis abortado por fallo critico.`;
         },
 
-
+/*Created by Pablo */
     };
 }

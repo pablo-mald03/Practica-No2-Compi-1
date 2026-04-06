@@ -74,7 +74,8 @@ export default class AnalizadorSemantico {
                         idTerminal,
                         TipoSimbolo.TERMINAL,
                         instruccion.fila,
-                        instruccion.columna
+                        instruccion.columna,
+                        instruccion.regla
                     );
 
                     this.tablaSimbolos.agregar(nuevoSimbolo);
