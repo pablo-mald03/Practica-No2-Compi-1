@@ -99,6 +99,8 @@ export default class AnalizadorSemantico {
         this.generarPrimeraPasada(instrucciones);
 
         this.generarSegundaPasada(instrucciones);
+
+        this.generarTerceraPasada(instrucciones);
     }
 
     /*Primera pasada para extraer los no terminales creados */
@@ -187,7 +189,13 @@ export default class AnalizadorSemantico {
                 for (let alternativa of instruccion.alternativas) {
                     for (let simboloHijo of alternativa) {
 
-                        const idHijo = simboloHijo.valor; 
+                        const idHijo = simboloHijo.valor;
+
+                        /*Ignorar lambda */
+                        if (simboloHijo.tipo === 'LAMBDA' || idHijo.toUpperCase() === 'LAMBDA') {
+                            continue;
+                        }
+
                         const existeHijo = this.tablaSimbolos.obtener(idHijo);
 
                         if (!existeHijo) {
@@ -211,6 +219,107 @@ export default class AnalizadorSemantico {
             this.agregarError("Initial_Sim", "Se declaro mas de un Simbolo Inicial. Solo debe existir uno.", -1, -1);
         }
     }
+
+
+    /*Tercera pasada: Esta permite ejecutar el metodo para calificar a los no terminales GENERADORES Y NO GENERADORES 
+    *
+    * Fuera del concepto amplio esta es una tecnica utilizada para detectar los bucles infinitos en las gramaticas
+    * esto se implementa de tal forma que se va evaluando los caminos y si cada camino converge a un terminal. No tiene bucles
+    * caso contrario si esta no llega a un terminal es ambigua ya que generara bucles infinitos.
+    * 
+    */
+
+    generarTerceraPasada(instrucciones) {
+        /*Generadores: No terminales que convergen a un lambda o terminal 
+        * NO generadores: No terminales que no convergen a terminal*/
+        const generadores = new Set();
+
+        let huboCambios = true;
+
+        /*Fase 1: identificar generadores */
+        while (huboCambios) {
+            huboCambios = false;
+
+            for (let instruccion of instrucciones) {
+
+                if (instruccion.tipo !== 'PRODUCCION') {
+                    continue;
+                }
+
+                const padre = instruccion.padre;
+
+                if (generadores.has(padre)) {
+                    continue;
+                }
+
+                for (let alternativa of instruccion.alternativas) {
+
+                    let alternativaGeneradora = true;
+
+                    for (let simboloHijo of alternativa) {
+
+                        /*Terminales y lambdas evitan bucles */
+                        if (simboloHijo.tipo === 'TERMINAL' || simboloHijo.tipo === 'LAMBDA') {
+                            continue;
+                        }
+                        else if (simboloHijo.tipo === 'NO_TERMINAL') {
+                            /*Si es no terminal debe estar en el set */
+
+                            if (!generadores.has(simboloHijo.valor)) {
+                                alternativaGeneradora = false;
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                    /*Si se encontro una alternativa en donde los hijos generan (Llamados a terminales) */
+                    if (alternativaGeneradora) {
+                        generadores.add(padre);
+                        huboCambios = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //Fase 2: los que no entraron al set es porque no tienen 
+        for (let instruccion of instrucciones) {
+
+            if (instruccion.tipo === 'DECLARACION_NO_TERMINAL') {
+
+                const idNoTerminal = instruccion.id;
+
+                if (!generadores.has(idNoTerminal)) {
+
+                    const tieneProduccion = instrucciones.some(i => i.tipo === 'PRODUCCION' && i.padre === idNoTerminal);
+
+
+                    if (!tieneProduccion) {
+                        this.erroresSemanticos.push({
+                            lexema: idNoTerminal,
+                            tipo: "Semantico",
+                            fila: instruccion.fila,
+                            columna: instruccion.columna,
+                            descripcion: `El No Terminal '${idNoTerminal}' fue declarado pero no tiene ninguna regla de producción definida.`
+                        });
+                    } else {
+                        this.erroresSemanticos.push({
+                            lexema: idNoTerminal,
+                            tipo: "Ambiguedad",
+                            fila: instruccion.fila,
+                            columna: instruccion.columna,
+                            descripcion: `El No Terminal '${idNoTerminal}'. Crea un bucle infinito. Carece del caso base producir (Terminal o LAMBDA).`
+
+                        });
+                    }
+                }
+            }
+        }
+
+    }
+
 
     /*Metodo que permite agregar los errores a la lista */
     agregarError(lex, desc, fila, columna) {

@@ -158,10 +158,10 @@ export default class GestorTablaLL {
             }
             else if (alternativaNueva.some(s => s.tipo === 'LAMBDA') || alternativaPrevia.some(s => s.tipo === 'LAMBDA')) {
                 /*Alguien es lambda */
-                tipoError = "Conflicto Primero/Siguiente (una alternativa se anula con LAMBDA)";
+                tipoError = "Conflicto Primero/Siguiente una alternativa se anula con LAMBDA.";
             }
             else {
-                tipoError = "Conflicto Primero/Primero (interseccion de conjuntos)";
+                tipoError = "Conflicto Primero/Primero interseccion de conjuntos";
             }
 
             this.agregarError(
