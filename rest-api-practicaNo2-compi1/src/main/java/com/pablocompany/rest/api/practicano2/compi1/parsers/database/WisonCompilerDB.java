@@ -26,7 +26,7 @@ public class WisonCompilerDB {
     private static final String OBTENER_GRAMATICA = "SELECT filename, archivo FROM wison WHERE id = ?";
     
     
-    //Metodo que sirve para poder registrar un usuario en el sistema
+    //Metodo que sirve para poder almacenar una gramatica en el sistema
     public boolean insertarGramatica(Gramatica referenciaGramatica) throws ErrorInesperadoException, FormatoInvalidoException {
 
         try (Connection conexion = DBConnectionSingleton.getInstance().getConnection()) {
@@ -63,7 +63,7 @@ public class WisonCompilerDB {
 
     }
 
-    //Metodo que sirve para poder generar la transaccion para insertar al usuario y crearle su registro a su bileltera digital
+    //Metodo que sirve para poder generar la transaccion para insertar la gramatica
     public int subirFormulario(Gramatica referenciaGramatica, Connection conexion) throws SQLException, FormatoInvalidoException {
 
         try (PreparedStatement preparedStmt = conexion.prepareStatement(INSERT_GRAMATICA);) {

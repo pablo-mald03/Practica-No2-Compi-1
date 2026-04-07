@@ -2,6 +2,10 @@
 import parser from "$lib/analizador/wison-parser.js";
 import GestorCompilador from "$lib/backend/GestorCompilador";
 import { tick } from "svelte";
+
+import { GramaticaDTO } from "$lib/models/GramaticaDTO";
+import { guardarGramaticaAPI } from "$lib/services/GramaticaService";
+
 /*Created by Pablo */
 //Funcion javaScript que permite crear la reactividad de la pagina web
 export function createEditorState() {
@@ -17,7 +21,7 @@ export function createEditorState() {
     let mostrarPresets = $state(true);
 
     /*Estado para minimizar y maximizar la tabla de errores*/
-    let mostrarErrores = $state(true);0
+    let mostrarErrores = $state(true); 0
 
     //Registro de las lineas que tiene el editor de texto
     let lineasArray = $derived(codigoGramatica.split("\n").map((_, i) => i + 1));
@@ -64,9 +68,13 @@ export function createEditorState() {
         set mostrarModalExito(valor) { mostrarModalExito = valor; },
 
         get mostrarModalResultado() { return mostrarModalResultado; },
+        set mostrarModalResultado(valor) { mostrarModalResultado = valor; },
+
         get datosResultado() { return datosResultado; },
+        set datosResultado(valor) { datosResultado = valor; },
 
         get gestorCompilacion() { return gestorCompilacion; },
+        
 
         /*Metodo que permite cargar un archivo de entrada*/
         cargarDesdeArchivo(event) {
@@ -169,50 +177,44 @@ export function createEditorState() {
         },
 
         // Metodo para cuando el usuario le da a guardar en el modal y se guarda la gramatica
-        guardarGramatica(nombre) {
+        async guardarGramatica(nombre) {
 
             this.mostrarModalExito = false;
 
             /*Metodo que permite generar los archivos para generar el analizador PATRON EXPERTO */
-            const {nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
+            const { nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
 
-            const gramaticaDTO = {
-                nombreArchivo: nombreArchivo,
-                lexer: lexerJison,
-                parser: parserLL
-            }
+            /*Instanciacion del DTO*/
+            const gramaticaDTO = new GramaticaDTO(nombreArchivo, lexerJison, parserLL);
 
-            /*Metodo que permite generar el POST hacia la API para poder almacenar la gramatica generada*/
+            this.logConsola += `\n\n[INFO] Enviando la gramatica '${nombre}' a la API...`;
 
-            /*Pendiente hacer el POST a la API (PATRON EXPERTO) */
+            /*Metodo que permite generar el POST hacia la API para poder almacenar la gramatica generada (PATRON EXPERTO)*/
+            this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la Aplicacion...`;
 
-            this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;
+            /* POST a la API (PATRON EXPERTO) */
+            try {
+                /*Metodo que permite guardar la gramatica en la aplicacion */
+                await guardarGramaticaAPI(gramaticaDTO);
 
-            // TIMEOUT QUEMADO
-            setTimeout(() => {
+                this.datosResultado = {
+                    tipo: "exito",
+                    titulo: "Guardado Exitoso",
+                    mensaje: `La gramatica "${nombre}" se ha guardado correctamente en la aplicacion.`
+                };
+                this.logConsola += `\n\n[EXITOSO] Gramatica almacenada correctamente en la aplicacion.`;
 
-                /*constante QUEMADA DE MOMENTO */
-                const backendRespondioBien = false;
+            } catch (error) {
+                this.datosResultado = {
+                    tipo: "error",
+                    titulo: "Error al Guardar",
+                    mensaje: error.message
+                };
+                this.logConsola += `\n\n[ERROR] La API reporto: ${error.message}`;
 
-                if (backendRespondioBien) {
-                    datosResultado = {
-                        tipo: "exito",
-                        titulo: "Guardado Exitoso",
-                        mensaje: `La gramatica "${nombre}" se ha guardado correctamente en la aplicacion.`
-                    };
-                    this.logConsola += `\n\n[EXITOSO] Gramatica guardada en la aplicacion.`;
-                } else {
-                    datosResultado = {
-                        tipo: "error",
-                        titulo: "Error al Guardar",
-                        mensaje: `No se pudo guardar la gramatica "${nombre}". Verifica tu conexion o intenta mas tarde.`
-                    };
-                    this.logConsola += `\n\n[ERROR] Fallo de conexion con la API.`;
-                }
-
+            } finally {
                 mostrarModalResultado = true;
-
-            }, 800);
+            }
         },
 
         /*Metodo que permite compilar QUEMADO DE MOMENTO*/
@@ -267,14 +269,14 @@ export function createEditorState() {
 
                     this.logConsola += `\n\n[ERROR] Analisis Semantico fallo con ${erroresSemanticos.length} errores.`;
                     this.mostrarErrores = true;
-                    return null; 
+                    return null;
                 }
 
                 this.logConsola += "\n\n[EXITOSO] Analisis completado con exito.";
 
                 //Guardado del AST para la siguiente fase de generacion LL(1)
                 astGenerado = astValidado;
-                
+
                 /*Fase de generacion dela tabla LL(1)  (SEGUNDA FASE)*/
 
                 const { erroresAmbiguos } = gestorCompilacion.generarLL1();
@@ -286,7 +288,7 @@ export function createEditorState() {
                     this.logConsola += `\n\n[AMBIGUEDAD] Se ha detectado ambiguedad. Se registraron: ${erroresAmbiguos.length} colisiones.`;
 
                     this.mostrarErrores = true;
-                    return null; 
+                    return null;
                 }
 
 
@@ -329,6 +331,6 @@ export function createEditorState() {
             this.logConsola += `\n\n[ERROR] Analisis abortado por fallo critico.`;
         },
 
-/*Created by Pablo */
+        /*Created by Pablo */
     };
 }

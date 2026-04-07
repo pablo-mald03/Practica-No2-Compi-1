@@ -34,10 +34,8 @@ public class WisonResource {
 
             /*PATRON EXPERTO*/
             if (service.almacenarGramatica(gramatica)) {
-
                 return Response.status(Response.Status.CREATED).build();
             } else {
-
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("mensaje", "No se pudo almacenar la gramatica en la API")).build();
             }
 
