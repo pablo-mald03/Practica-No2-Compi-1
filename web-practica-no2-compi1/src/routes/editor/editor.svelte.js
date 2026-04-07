@@ -181,6 +181,8 @@ export function createEditorState() {
             console.log(nombreArchivo);
             console.log("\n");
             console.log(lexerJison);
+            console.log("\n");
+            console.log(parserLL);
             
 
             this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;

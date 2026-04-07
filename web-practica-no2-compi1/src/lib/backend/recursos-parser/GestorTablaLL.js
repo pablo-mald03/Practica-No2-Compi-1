@@ -18,6 +18,8 @@ export default class GestorTablaLL {
     /*Metodo delegado para poder procesar y generar los mecanismos para armar la tabla LL(1) */
     procesarTablaLL() {
 
+        this.normalizarAST();
+
         this.inicializadConjuntos();
 
         this.calcularPrimeros();
@@ -151,7 +153,7 @@ export default class GestorTablaLL {
             }
             else if (alternativaNueva.length > 0 && alternativaPrevia.length > 0 &&
                 alternativaNueva[0].valor === alternativaPrevia[0].valor) {
-                
+
                 /*Falta de factorizacion a la izquierda */
 
                 tipoError = `Falta de factorizacion por la izquierda. Ambas alternativas inician con '${alternativaNueva[0].valor}'`;
@@ -380,6 +382,42 @@ export default class GestorTablaLL {
                         /*VERIFICACION SI SE LOGRO INYECTAR ALGO EN EL SET*/
                         if (setSiguienteHijo.size > longitudAntes) {
                             huboCambios = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /*Metodo que permite limpiar los identificadores de los terminales y no terminales */
+    limpiarSimbolo(id) {
+        if (!id) {
+            return id;
+        }
+
+        return id.replace(/^[$%]_/, '');
+    }
+
+    /*Metodo delegado para poder normalizar a los TERMINALES Y NO TERMINALES. Esto con el fin de evitar los caracteres especiales de JS */
+    normalizarAST() {
+        const sintactico = this.ast.sintactico;
+
+        if (!sintactico) return;
+
+        for (const instruccion of sintactico) {
+
+            if (instruccion.tipo === 'DECLARACION_NO_TERMINAL' || instruccion.tipo === 'SIMBOLO_INICIAL') {
+                instruccion.id = this.limpiarSimbolo(instruccion.id);
+            }
+
+            if (instruccion.tipo === 'PRODUCCION') {
+                instruccion.padre = this.limpiarSimbolo(instruccion.padre);
+
+                for (const alternativa of instruccion.alternativas) {
+                    for (const simbolo of alternativa) {
+                        if (simbolo.tipo === 'TERMINAL' || simbolo.tipo === 'NO_TERMINAL') {
+                            simbolo.valor = this.limpiarSimbolo(simbolo.valor);
                         }
                     }
                 }

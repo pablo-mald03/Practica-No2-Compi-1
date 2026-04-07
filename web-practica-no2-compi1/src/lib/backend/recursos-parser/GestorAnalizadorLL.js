@@ -43,6 +43,9 @@ export default class GestorAnalizadorLL {
 
         let reglasLexicas = "";
         let mapeoTokens = "";
+
+        let contador = 0;
+
         for (const terminal of this.astProcesado.lexico) {
 
             /*Parte lexica: Traduccion de TERMINALES A EXPRESIONES REGULARES */
@@ -54,9 +57,15 @@ export default class GestorAnalizadorLL {
             reglasLexicas += `${regexConstruido}     return '${idLimpio}';\n`;
 
             /*Parte sintactica: Traduccion de NO TERMINALES reconocimiento de tokens*/
-            mapeoTokens += `    | ${idLimpio}\n`;
+            if (contador !== 0) {
+                mapeoTokens += `    | ${idLimpio}\n`;
+            } else {
+                mapeoTokens += `    : ${idLimpio}\n`;
+            }
+
             mapeoTokens += `        {{ $$ = { tipo: '${idLimpio}', valor: yytext, fila: yylineno, columna: @1.first_column + 1 }; }}\n`;
 
+            contador++;
         }
 
         /*Union de todo el archivo .jison */
@@ -122,7 +131,7 @@ ${mapeoTokens.substring(4)}
                     break;
 
                 default:
-                    this.agregarError("Generación Jison", `Tipo de unidad lexica desconocido: ${unidad.tipo}`, unidad.fila, unidad.columna);
+                    fragmento = unidad.valor;
             }
 
             if (modificador) {
@@ -138,7 +147,7 @@ ${mapeoTokens.substring(4)}
     /*Metodo que permite tomar la referencia del ID */
     resolverReferenciaLexica(idReferencia) {
 
-        const simboloRef = this.tablaSimbolos.obtener(idReferencia); 
+        const simboloRef = this.tablaSimbolos.obtener(idReferencia);
 
         if (!simboloRef) {
             return "";
@@ -150,13 +159,150 @@ ${mapeoTokens.substring(4)}
     }
 
 
+    /*Metodo auxiliar que permite retornar el simbolo inicial */
+    obtenerNombreInicial() {
+        const bloqueSintactico = this.astProcesado.sintactico;
+
+        let idSimboloInicial = null;
+
+        /*Primera regla: SE LE AGREGA EL FIN DE CADENA (SIGUIENDO LO MISMO QUE LOS LALR LE PUSE EOF) */
+        for (const instruccion of bloqueSintactico) {
+
+            if (instruccion.tipo === 'SIMBOLO_INICIAL') {
+                idSimboloInicial = instruccion.id;
+                break;
+            }
+        }
+
+        return {
+            simboloInicial: idSimboloInicial
+        };
+    }
+
+
     /*Metodo delegado para poder armar el .js como ANALIZADOR SINTACTICO DESCENDENTE */
     generarCodigoParserJS(nombreClase) {
 
+        /*Funciones recursivas generadas por el analizador sintactico*/
+        let metodosRecursivos = "";
 
-        return "";
+        /*Se generaran las funciones iterando sobre la tabla*/
+        for (const [noTerminal, transiciones] of this.tablaLL1.entries()) {
+
+            metodosRecursivos += `\n    /*Metodo recursivo generado para el No terminal: ${noTerminal}*/\n`;
+            metodosRecursivos += `  terminalL_${noTerminal}(){\n`;
+            metodosRecursivos += `      /*Nodo de derivacion (visual) para la derivacion*/\n`;
+            metodosRecursivos += `      let nodo = { id: this.generarId(), label: "${noTerminal}", children: [] };\n`;
+            metodosRecursivos += `      let tokenActual = this.obtenerToken();\n\n`;
+            metodosRecursivos += `          switch(tokenActual.tipo) {\n`;
+
+            /*Se agrupan las tansiciones para generar cada caso del switch */
+            for (const [terminal, alternativa] of transiciones.entries()) {
+
+                metodosRecursivos += `              case '${terminal}': \n`;
+
+                /*Se generan las transiciones segun las alternativas de transicion */
+                for (const simbolo of alternativa) {
+
+                    if (simbolo.tipo === 'TERMINAL') {
+                        metodosRecursivos += `                  nodo.children.push(this.consumir('${simbolo.valor}'));\n`;
+                    } 
+                    else if (simbolo.tipo === 'NO_TERMINAL') {
+                        metodosRecursivos += `                  nodo.children.push(this.terminalL_${simbolo.valor}());\n`;
+                    } 
+                    else if (simbolo.tipo === 'LAMBDA') {
+                        metodosRecursivos += `                  nodo.children.push({ id: this.generarId(), label: "LAMBDA", children: [] });\n`;
+                    }
+                }
+                metodosRecursivos += `                  break;\n`;
+            }
+
+            metodosRecursivos += `              default:\n`;
+            metodosRecursivos += `                  this.errores.push({lexema: \`'\${tokenActual.valor}'\`,tipo: 'Sintactico', mensaje: \`Error sintactico en ${noTerminal}: Token inesperado '\${tokenActual.tipo}'\`, fila: tokenActual.fila, columna: tokenActual.columna });\n`;
+            metodosRecursivos += `                  //Produccion de error para la produccion\n`;
+            metodosRecursivos += `                  nodo.children.push({ id: this.generarId(), label: "ERROR", children: [] });\n`;
+            metodosRecursivos += `                  break;\n`;
+            metodosRecursivos += `          }\n`;
+
+            metodosRecursivos += `          return nodo;\n`;
+            metodosRecursivos += `      }\n`;
+        }
+
+        /*Simbolo inicial de la gramatica */
+        const { simboloInicial } = this.obtenerNombreInicial();
+
+
+        return `
+class Parser_${nombreClase} {
+
+    constructor(){
+        this.tokens = [];
+        this.indice = 0;
+        this.errores = [];
+        this.contadorId = 0;
     }
 
+    /*Metodo principal que permite ejecutar el analisis de la cadena de entrada*/
+    /*--los tokens recibidos son los retornados por el lexer--*/
+    parse(tokensEntrada){
+        this.tokens = tokensEntrada;
+        this.indice = 0;
+        this.errores = [];
+        this.contadorId = 0;
+
+        /*--Inicio del analisis sintactico--*/
+        let raiz = this.terminalL_${simboloInicial}();
+        let tokenFinal = this.obtenerToken();
+        
+        if (tokenFinal.tipo !== 'EOF') {
+            this.errores.push({lexema: 'EOF', tipo: 'Sintactico', mensaje: \`Se esperaba EOF, pero se encontro \${tokenFinal.tipo}\`, fila: tokenFinal.fila, columna: tokenFinal.columna });
+        }
+        
+        return {
+            arbol: raiz,
+            errores: this.errores
+        };
+    }
+
+    /*Metodo utilizado para poder generar los ID unicos para poder graficar*/
+    generarId(){
+        return "n_" + (this.contadorId++);
+    }
+
+    /*Metodo utilizado para poder obtener los tokens generados (Los que vienen del lexer)*/
+    obtenerToken(){
+        if(this.indice < this.tokens.length){
+            return this.tokens[this.indice];
+        }
+        /*--Caso de no encontrar el token (Error lexico)--*/
+        return { 
+                tipo: 'EOF', 
+                valor: 'EOF', 
+                fila: -1, 
+                columna: -1 
+        };
+    }
+
+    /*--Funcion que permite generar el avance de una produccion--*/
+    consumir(tokenEsperado){
+    
+        let tokenActual = this.obtenerToken();
+        
+        if(tokenActual.tipo === tokenEsperado){ 
+            this.indice++;
+            return { id: this.generarId(), label: \`'\${tokenActual.valor}'\`, children: [] };
+        } else {
+            this.errores.push({lexema: tokenActual.valor, tipo: 'Sintactico', mensaje: \`Se esperaba \${tokenEsperado} pero vino: \${tokenActual.tipo}\`, fila: tokenActual.fila, columna: tokenActual.columna });
+            return { id: this.generarId(), label: "ERROR", children: [] };
+        }
+    }
+
+${metodosRecursivos}
+} 
+
+/*Se genera la exportacion del parser generado*/
+module.exports = Parser_${nombreClase};`;
+    }
 }
 
 /*Created by Pablo */
