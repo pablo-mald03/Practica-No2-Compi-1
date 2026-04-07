@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WISON COMPILER API</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    </head>
+    <body>
+
+        <header class="navbar">
+            <div class="container">
+                <div class="logo">Wison<span>Compiler</span></div>
+                <nav>
+                    <a href="#features">Caracteristicas</a>
+                    <a href="#docs">Documentación</a>
+                    <a href="#" class="btn-primary">Mis Gramaticas</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container">
+            <section class="hero">
+                <h1>Tus Gramaticas NTPS, <br><span>almacenadas en segundos.</span></h1>
+                <p>La infraestructura mas simple para recibir, almacenar y enviar tus gramaticas creadas desde WisonCompiler.</p>
+
+                <div class="status-card" id="status">
+                    <div class="status-indicator">
+                        <span class="dot"></span>
+                        <span class="status-text">API Online - Región US-East</span>
+                    </div>
+                    <div class="status-details">
+                        Latencia: <span>18ms</span> | Almacenamiento: <span>Activo</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features" id="features">
+                <div class="card">
+                    <h3>Recepción Ágil</h3>
+                    <p>Envía cualquier Archivo desde tu aplicacion web y nosotros nos encargamos de almacenarlo de forma segura.</p>
+                </div>
+                <div class="card">
+                    <h3>Validación</h3>
+                    <p>Esquemas automaticos para asegurar que los datos recibidos cumplen con tus requerimientos.</p>
+                </div>
+                <div class="card">
+                    <h3>Consulta</h3>
+                    <p>Endpoint de lectura con soporte para filtros, ordenamiento y paginación de envios.</p>
+                </div>
+            </section>
+
+            <section class="code-section" id="docs">
+                <h3>Envía tu primer formulario</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Simplemente apunta tu `fetch` a nuestro endpoint:</p>
+                <div class="code-block">
+                    <pre>
+<code><span class="method">POST</span> /api/v1/gramaticas/{gramatcia_id}/submit
+<span class="header">Content-Type:</span> application/json
+<span class="header">Authorization:</span> Bearer YOUR_API_KEY
+
+{
+  <span class="key">"nombreArchivo"</span>: "Gramatica",
+  <span class="key">"lexerJison"</span>: "contenido lexer..",
+  <span class="key">"parserLL"</span>: "contenido parser LL(1).."
+}</code>
+                    </pre>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2026 WisonCompiler Service. Desarrollado para todo publico | by Pablo-dev.</p>
+            </div>
+        </footer>
+
+    </body>
+</html>
