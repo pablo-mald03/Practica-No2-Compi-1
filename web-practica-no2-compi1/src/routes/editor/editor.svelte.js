@@ -176,6 +176,14 @@ export function createEditorState() {
             /*Metodo que permite generar los archivos para generar el analizador PATRON EXPERTO */
             const {nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
 
+            const gramaticaDTO = {
+                nombreArchivo: nombreArchivo,
+                lexer: lexerJison,
+                parser: parserLL
+            }
+
+            /*Metodo que permite generar el POST hacia la API para poder almacenar la gramatica generada*/
+
             /*Pendiente hacer el POST a la API (PATRON EXPERTO) */
 
             this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la aplicacion...`;
