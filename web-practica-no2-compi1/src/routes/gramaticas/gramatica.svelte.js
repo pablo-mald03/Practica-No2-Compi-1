@@ -279,6 +279,14 @@ export function createGrammarState() {
                 //FASE LEXICA: Obtener tokens usando el Lexer de Jison inyectado
                 const tokens = analizadorInyectado.lexer.parse(entradaUsuario);
 
+                console.log("=== INSPECCIÓN FORENSE DE TOKENS ===");
+                tokens.forEach((t, i) => {
+                    // Convertimos la palabra a sus valores hexadecimales
+                    let hex = Array.from(t.tipo).map(c => c.charCodeAt(0).toString(16).toUpperCase()).join(' ');
+                    console.log(`Token ${i}: [${t.tipo}] | Longitud: ${t.tipo.length} | Hex: ${hex}`);
+                });
+                console.log("====================================");
+
                 // FASE SINTÁCTICA: Usar el Parser LL(1) inyectado
                 const ClaseParser = analizadorInyectado.parser;
                 const instanciaParser = new ClaseParser();

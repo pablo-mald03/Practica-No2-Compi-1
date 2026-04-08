@@ -84,8 +84,8 @@ export const descargarParserAPI = async (id) => {
     try {
         const response = await fetch(endpoint, {
             method: 'GET',
-            headers: { 
-                'Accept': 'application/octet-stream, application/json' 
+            headers: {
+                'Accept': 'application/octet-stream, application/json'
             }
         });
 
@@ -94,12 +94,14 @@ export const descargarParserAPI = async (id) => {
             throw new Error(errorData.mensaje || `Error al descargar el parser (${response.status})`);
         }
 
-        let filename = "parser.js"; 
+        let filename = "parser.js";
+
         const disposition = response.headers.get('Content-Disposition');
+
         if (disposition && disposition.includes('filename=')) {
             const matches = /filename="([^"]+)"/.exec(disposition);
             if (matches != null && matches[1]) {
-                filename = matches[1];
+                filename = matches[1]; 
             }
         }
 
