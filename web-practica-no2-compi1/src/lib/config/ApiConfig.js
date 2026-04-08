@@ -4,7 +4,7 @@ export class ApiConfig {
      * @returns {string}
      */
     static getBaseUrl() {
-       
+
         return "http://localhost:8080/rest-api-practicaNo2-compi1/api/v1";
     }
 
@@ -25,6 +25,11 @@ export class ApiConfig {
     /*Metodo que permite conectar con el endpoint para poder obtener los datos del analizador */
     static getAnalizadorUrl(id) {
         return `${this.getGramaticasUrl()}/analizador/${id}`;
+    }
+
+    /* Metodo que permite conectar con el endpoint para descargar el parser de la gramatica */
+    static getDescargarParserUrl(id) {
+        return `${this.getGramaticasUrl()}/descargar/${id}`;
     }
 
 }

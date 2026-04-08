@@ -1,6 +1,6 @@
 
 /*Imports de la clase*/
-import { obtenerGramaticasAPI, obtenerAnalizadorAPI } from "$lib/services/GramaticaService";
+import { obtenerGramaticasAPI, obtenerAnalizadorAPI, descargarParserAPI } from "$lib/services/GramaticaService";
 
 
 //Clase que permite exportar la logica de las gramaticas
@@ -147,6 +147,9 @@ export function createGrammarState() {
         try {
             const parserData = await obtenerAnalizadorAPI(id);
 
+            console.log(" === CODIGO DEL PARSER GENERADO === ");
+            console.log(parserData.parser);
+
             gramaticaVisible = `Compilando y montando ${parserData.nombreArchivo} en memoria...`;
 
             /*Creacion de los archivos*/
@@ -162,8 +165,8 @@ export function createGrammarState() {
 
             analizadorInyectado = {
                 nombre: parserData.nombreArchivo,
-                lexer: importLexer.default || importLexer, 
-                parser: importParser.default || importParser 
+                lexer: importLexer.default || importLexer,
+                parser: importParser.default || importParser
             };
 
             //Se liberan las URL temporales
@@ -218,15 +221,36 @@ export function createGrammarState() {
         cargarGramaticasPaginadas,
         async aplicarGramatica(request) {
             requestSeleccionado = request.id;
-   
+
             await inyectarGramaticaEnCaliente(request.id);
         },
 
         /*Metodo que permite descargar la gramatica seleciconada */
-        descargarGramatica(request) {
+        async descargarGramatica(request) {
             const idGramatica = request.id;
 
-            //gramaticaVisible = `Cargando detalles de la gramatica ${request.nombreGramatica}...`;
+            try {
+                const { blob, filename } = await descargarParserAPI(idGramatica);
+
+                const downloadUrl = window.URL.createObjectURL(blob);
+
+                const anchorElement = document.createElement('a');
+                anchorElement.style.display = 'none';
+                anchorElement.href = downloadUrl;
+                anchorElement.download = filename;
+
+                document.body.appendChild(anchorElement);
+                anchorElement.click();
+
+                document.body.removeChild(anchorElement);
+                window.URL.revokeObjectURL(downloadUrl);
+
+                console.log("¡Descarga completada con éxito!");
+
+            } catch (error) {
+                console.error("Error en la vista al descargar:", error.message);
+                alert(`No se pudo descargar el archivo: ${error.message}`);
+            }
         },
         /* Metodo para calcular fila y columna */
         actualizarPosicion(e) {

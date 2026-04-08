@@ -50,7 +50,7 @@ export default class GestorAnalizadorLL {
 
             /*Parte lexica: Traduccion de TERMINALES A EXPRESIONES REGULARES */
 
-            let idLimpio = terminal.id.replace(/^\$_/, '').toUpperCase();
+            let idLimpio = terminal.id.replace(/^\$_/, '').trim().toUpperCase();
 
             const regexConstruido = this.traducirReglaRegex(terminal.regla);
 
@@ -199,7 +199,7 @@ ${mapeoTokens.substring(4)}
             /*Se agrupan las tansiciones para generar cada caso del switch */
             for (const [terminal, alternativa] of transiciones.entries()) {
 
-                let terminalMayuscula = terminal.toUpperCase();
+                let terminalMayuscula = terminal.trim().toUpperCase();
 
                 metodosRecursivos += `              case '${terminalMayuscula}': \n`;
 
@@ -207,7 +207,7 @@ ${mapeoTokens.substring(4)}
                 for (const simbolo of alternativa) {
 
                     if (simbolo.tipo === 'TERMINAL') {
-                        let simboloMayuscula = simbolo.valor.toUpperCase();
+                        let simboloMayuscula = simbolo.valor.trim().toUpperCase();
                         metodosRecursivos += `                  nodo.children.push(this.consumir('${simboloMayuscula}'));\n`;
                     } 
                     else if (simbolo.tipo === 'NO_TERMINAL') {

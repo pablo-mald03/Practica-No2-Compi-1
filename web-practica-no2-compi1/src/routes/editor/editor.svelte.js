@@ -184,6 +184,8 @@ export function createEditorState() {
             try {
                 const { nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
 
+                console.log(lexerJison);
+
                 const respuesta = await fetch('/api/compile-jison', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

@@ -9,6 +9,7 @@ import com.pablocompany.rest.api.practicano2.compi1.exceptions.ErrorInesperadoEx
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.FormatoInvalidoException;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.dtos.GramaticaRequest;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserDescargaDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.services.GramaticaService;
 import jakarta.ws.rs.Consumes;
@@ -79,13 +80,13 @@ public class WisonResource {
     }
     
     /*Metodo que permite descargar el archivo de la gramatica*/
-    /*@GET
+    @GET
     @Path("descargar/{id}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
-    public Response descargarFormulario(@PathParam("id") String id) {
+    public Response descargarParser(@PathParam("id") String id) {
         try {
-            FormularioCrudService service = new FormularioCrudService();
-            FormularioDescargaDTO formDescarga = service.obtenerFormularioDescarga(id);
+            GramaticaService service = new GramaticaService();
+            ParserDescargaDTO formDescarga = service.obtenerParserDescarga(id);
 
             byte[] bytes = formDescarga.getContenido();
 
@@ -111,7 +112,7 @@ public class WisonResource {
                     .entity(Map.of("mensaje", ex.getMessage()))
                     .build();
         }
-    }*/
+    }
 
     /*Metodo que permite obtener las gramaticas almacenadas*/
     @GET

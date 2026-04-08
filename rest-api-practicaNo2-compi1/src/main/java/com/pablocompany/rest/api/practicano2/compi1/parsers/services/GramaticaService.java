@@ -8,6 +8,7 @@ import com.pablocompany.rest.api.practicano2.compi1.parsers.dtos.GramaticaReques
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.Gramatica;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserDescargaDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ public class GramaticaService {
 
         throw new ErrorInesperadoException("No se ha podido almacenar la gamatica en la base de datos");
     }
-    
+
     //Metodo que permite retornar el listado de gramaticas paginadas
     public List<GramaticaModelDTO> obtenerGramaticasListado(String limite, String inicio) throws ErrorInesperadoException, DatosNoEncontradosException, FormatoInvalidoException {
 
@@ -58,7 +59,7 @@ public class GramaticaService {
 
         return wisonDb.gramaticasRegistradas(limitInt, offsetInt);
     }
-    
+
     /*Metodo que permite obtener el analizador lexico y sintactico de la gramatica*/
     public ParserLLDTO obtenerGramaticaAnalisis(String id) throws FormatoInvalidoException, ErrorInesperadoException, DatosNoEncontradosException {
 
@@ -71,6 +72,20 @@ public class GramaticaService {
         int idBuscar = Integer.parseInt(id);
 
         return wisonDb.obtenerAnalizadores(idBuscar);
+    }
+
+    //Metodo que retornar el contenido del parser para poderlo descargar
+    public ParserDescargaDTO obtenerParserDescarga(String id) throws FormatoInvalidoException, ErrorInesperadoException, DatosNoEncontradosException {
+
+        if (!StringUtils.isNumeric(id)) {
+            throw new FormatoInvalidoException("El id del parser no es numerico o esta vacio");
+        }
+
+        WisonCompilerDB wisonDb = new WisonCompilerDB();
+
+        int idBuscar = Integer.parseInt(id);
+
+        return wisonDb.obtenerArchivoBinario(idBuscar);
     }
 
 }

@@ -76,3 +76,39 @@ export const obtenerAnalizadorAPI = async (id) => {
         throw error;
     }
 };
+
+/* REQUEST QUE PERMITE DESCARGAR EL ARCHIVO DEL PARSER (.js) */
+export const descargarParserAPI = async (id) => {
+    const endpoint = ApiConfig.getDescargarParserUrl(id);
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: { 
+                'Accept': 'application/octet-stream, application/json' 
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.mensaje || `Error al descargar el parser (${response.status})`);
+        }
+
+        let filename = "parser.js"; 
+        const disposition = response.headers.get('Content-Disposition');
+        if (disposition && disposition.includes('filename=')) {
+            const matches = /filename="([^"]+)"/.exec(disposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1];
+            }
+        }
+
+        const blob = await response.blob();
+
+        return { blob, filename };
+
+    } catch (error) {
+        console.error("[GramaticaService] Error en GET Descargar Parser:", error);
+        throw error;
+    }
+};

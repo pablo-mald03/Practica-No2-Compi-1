@@ -5,6 +5,7 @@ import com.pablocompany.rest.api.practicano2.compi1.exceptions.ErrorInesperadoEx
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.FormatoInvalidoException;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.Gramatica;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserDescargaDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import com.pablocompany.rest.api.practicano2.compi1.resources.connection.DBConnectionSingleton;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +32,9 @@ public class WisonCompilerDB {
 
     //Constante que permite obtener los analizadores de la gramatica 
     private static final String OBTENER_GRAMATICA = "SELECT filename, lexer, parser FROM wison WHERE id = ?";
+    
+    //Constante que permite descargar la gramatica 
+    private static final String OBTENER_DESCARGA_GRAMATICA = "SELECT filename, parser FROM wison WHERE id = ?";
 
     //Metodo que sirve para poder almacenar una gramatica en el sistema
     public boolean insertarGramatica(Gramatica referenciaGramatica) throws ErrorInesperadoException, FormatoInvalidoException {
@@ -139,8 +143,29 @@ public class WisonCompilerDB {
         } catch (SQLException e) {
             throw new ErrorInesperadoException("Error al recuperar el archivo de la gramatica");
         }
-
         throw new DatosNoEncontradosException("No se ha encontrado una gramatica con el ID solicitado");
+    }
+    
+    /*Metodo que permite obtener el archivo del parser*/
+      public ParserDescargaDTO obtenerArchivoBinario(int id) throws ErrorInesperadoException, DatosNoEncontradosException {
+        try (Connection conexion = DBConnectionSingleton.getInstance().getConnection(); PreparedStatement query = conexion.prepareStatement(OBTENER_DESCARGA_GRAMATICA)) {
+
+            query.setInt(1, id);
+
+            try (ResultSet rs = query.executeQuery()) {
+                if (rs.next()) {
+                    return new ParserDescargaDTO(
+                            rs.getString("filename"),
+                            rs.getBytes("parser")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new ErrorInesperadoException("Error al recuperar el archivo del parser binario");
+        }
+
+        throw new DatosNoEncontradosException("No se ha encontrado el parser con el ID solicitado");
     }
 
 }
