@@ -297,7 +297,7 @@
                                             >{error.columna}</td
                                         >
                                         <td class="ps-3 text-white italic-text">
-                                            {error.descripcion}
+                                            {error.mensaje}
                                         </td>
                                     </tr>
                                 {/each}

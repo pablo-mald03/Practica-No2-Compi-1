@@ -199,13 +199,16 @@ ${mapeoTokens.substring(4)}
             /*Se agrupan las tansiciones para generar cada caso del switch */
             for (const [terminal, alternativa] of transiciones.entries()) {
 
-                metodosRecursivos += `              case '${terminal}': \n`;
+                let terminalMayuscula = terminal.toUpperCase();
+
+                metodosRecursivos += `              case '${terminalMayuscula}': \n`;
 
                 /*Se generan las transiciones segun las alternativas de transicion */
                 for (const simbolo of alternativa) {
 
                     if (simbolo.tipo === 'TERMINAL') {
-                        metodosRecursivos += `                  nodo.children.push(this.consumir('${simbolo.valor}'));\n`;
+                        let simboloMayuscula = simbolo.valor.toUpperCase();
+                        metodosRecursivos += `                  nodo.children.push(this.consumir('${simboloMayuscula}'));\n`;
                     } 
                     else if (simbolo.tipo === 'NO_TERMINAL') {
                         metodosRecursivos += `                  nodo.children.push(this.terminalL_${simbolo.valor}());\n`;
@@ -230,7 +233,6 @@ ${mapeoTokens.substring(4)}
 
         /*Simbolo inicial de la gramatica */
         const { simboloInicial } = this.obtenerNombreInicial();
-
 
         return `
 class Parser_${nombreClase} {

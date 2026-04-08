@@ -157,13 +157,13 @@ export function createGrammarState() {
             const parserUrl = URL.createObjectURL(parserBlob);
 
             //Inyección de modulos
-            const moduloLexer = await import(/* @vite-ignore */ lexerUrl);
-            const moduloParser = await import(/* @vite-ignore */ parserUrl);
+            const importLexer = await import(/* @vite-ignore */ lexerUrl);
+            const importParser = await import(/* @vite-ignore */ parserUrl);
 
             analizadorInyectado = {
                 nombre: parserData.nombreArchivo,
-                lexer: moduloLexer,
-                parser: moduloParser
+                lexer: importLexer.default || importLexer, 
+                parser: importParser.default || importParser 
             };
 
             //Se liberan las URL temporales
@@ -251,8 +251,6 @@ export function createGrammarState() {
             mostrarArbol = true;
             erroresValidacion = [];
 
-
-
             try {
                 //FASE LEXICA: Obtener tokens usando el Lexer de Jison inyectado
                 const tokens = analizadorInyectado.lexer.parse(entradaUsuario);
@@ -269,12 +267,6 @@ export function createGrammarState() {
                     calcularLayoutArbol(resultado.arbol);
                 }
 
-                if (erroresValidacion.length > 0) {
-                    console.warn("[ANALISIS] Se encontraron errores sintácticos.");
-                } else {
-                    console.log("[ANALISIS] ¡Entrada procesada con éxito!");
-                }
-
             } catch (error) {
                 console.error("[ERROR CRITICO EN ANALISIS]:", error);
                 erroresValidacion = [{
@@ -282,7 +274,7 @@ export function createGrammarState() {
                     tipo: "Critico",
                     fila: 0,
                     columna: 0,
-                    descripcion: "Error en la ejecución del analizador: " + error.message
+                    mensaje: "Error en la ejecución del analizador: " + error.message
                 }];
             }
 
