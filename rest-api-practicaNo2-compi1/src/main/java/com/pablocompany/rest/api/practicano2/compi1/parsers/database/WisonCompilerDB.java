@@ -28,7 +28,7 @@ public class WisonCompilerDB {
     private static final String INSERT_GRAMATICA = "INSERT INTO wison (filename,lexer, parser) VALUES (?, ?, ?)";
 
     //Constante que permite consultar todos las las gramaticas (paginacion)
-    private static final String OBTENER_TODOS = "SELECT id, filename, fecha_publicacion, hora_publicacion FROM wison ORDER BY fecha_publicacion DESC LIMIT ? OFFSET ?";
+    private static final String OBTENER_TODOS = "SELECT id, filename, fecha_publicacion, hora_publicacion FROM wison ORDER BY id DESC LIMIT ? OFFSET ?";
 
     //Constante que permite obtener los analizadores de la gramatica 
     private static final String OBTENER_GRAMATICA = "SELECT filename, lexer, parser FROM wison WHERE id = ?";

@@ -15,8 +15,6 @@ export function createGrammarState() {
     let hayMas = $state(true);
     let cargando = $state(false);
 
-
-
     /*Atributos que permiten controlar las entradas y las evaluaciones de lo que ingresa el usuario*/
     let entradaUsuario = $state("");
 
@@ -49,26 +47,6 @@ export function createGrammarState() {
     let startPanX = 0;
     let startPanY = 0;
 
-    /*ARBOL CODIGO QUEMADO. PENDIENTE DE INTEGRACION REAL*/
-    const arbolDerivacionPrueba = {
-        id: "root", label: "S",
-        children: [
-            {
-                id: "n1", label: "S",
-                children: [
-                    { id: "n1_1", label: "S", children: [{ id: "h1", label: "'1'" }] },
-                    { id: "n1_2", label: "'+'" },
-                    { id: "n1_3", label: "S", children: [{ id: "h2", label: "'1'" }] }
-                ]
-            },
-            { id: "n2", label: "'+'" },
-            {
-                id: "n3", label: "S",
-                children: [{ id: "h3", label: "'1'" }]
-            }
-        ]
-    };
-
     /*Atributos de los nodos del arbol de derivacion */
     let nodosArbol = $state([]);
     let linksArbol = $state([]);
@@ -78,24 +56,43 @@ export function createGrammarState() {
         let nodes = [];
         let links = [];
         let leafIndex = 0;
-        const H_SPACING = 60;
-        const V_SPACING = 80;
+
+        const RADIO_NODO = 50;       
+        const H_SPACING = 170;       
+        const V_SPACING = 180;       
+        const MAX_FONT_SIZE = 16;    
 
         function traverse(node, depth) {
-            let n = { id: node.id, label: node.label, x: 0, y: depth * V_SPACING };
+            let labelLength = node.label.length;
+            
+           
+            let fontSize = MAX_FONT_SIZE;
+            if (labelLength > 7) {
+                fontSize = Math.max(8, 14 - (labelLength - 7));
+            }
 
-            if (!node.children || node.children.length === 0) {
+            let esTerminal = !node.children || node.children.length === 0;
+
+            let n = {
+                id: node.id,
+                label: node.label,
+                x: 0,
+                y: depth * V_SPACING,
+                r: RADIO_NODO,      
+                fSize: fontSize,
+                esTerminal: esTerminal
+            };
+
+            if (esTerminal) {
                 n.x = leafIndex * H_SPACING;
                 leafIndex++;
             } else {
-                //Nodo padre
                 let childrenX = [];
                 for (let child of node.children) {
                     let childNode = traverse(child, depth + 1);
                     childrenX.push(childNode.x);
                     links.push({ source: n, target: childNode });
                 }
-                //Centrado del arbol en sus hijos
                 n.x = childrenX.reduce((a, b) => a + b, 0) / childrenX.length;
             }
             nodes.push(n);
@@ -147,9 +144,6 @@ export function createGrammarState() {
         try {
             const parserData = await obtenerAnalizadorAPI(id);
 
-            console.log(" === CODIGO DEL PARSER GENERADO === ");
-            console.log(parserData.parser);
-
             gramaticaVisible = `Compilando y montando ${parserData.nombreArchivo} en memoria...`;
 
             /*Creacion de los archivos*/
@@ -173,7 +167,13 @@ export function createGrammarState() {
             URL.revokeObjectURL(lexerUrl);
             URL.revokeObjectURL(parserUrl);
 
-            gramaticaVisible = `Gramatica [ ${parserData.nombreArchivo} ] cargada correctamente.`;
+            gramaticaVisible = `Gramatica [ ${parserData.nombreArchivo} ] cargada correctamente.\n\n`;
+
+            const ClaseInyectada = analizadorInyectado.parser;
+            const parserTemporal = new ClaseInyectada();
+
+            gramaticaVisible += parserTemporal.estructuraGramatica;
+            
             requestSeleccionado = id;
 
         } catch (error) {
@@ -278,14 +278,6 @@ export function createGrammarState() {
             try {
                 //FASE LEXICA: Obtener tokens usando el Lexer de Jison inyectado
                 const tokens = analizadorInyectado.lexer.parse(entradaUsuario);
-
-                console.log("=== INSPECCIÓN FORENSE DE TOKENS ===");
-                tokens.forEach((t, i) => {
-                    // Convertimos la palabra a sus valores hexadecimales
-                    let hex = Array.from(t.tipo).map(c => c.charCodeAt(0).toString(16).toUpperCase()).join(' ');
-                    console.log(`Token ${i}: [${t.tipo}] | Longitud: ${t.tipo.length} | Hex: ${hex}`);
-                });
-                console.log("====================================");
 
                 // FASE SINTÁCTICA: Usar el Parser LL(1) inyectado
                 const ClaseParser = analizadorInyectado.parser;

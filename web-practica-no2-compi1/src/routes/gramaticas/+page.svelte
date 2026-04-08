@@ -56,7 +56,7 @@
                                             {req.nombreGramatica}
                                         </h6>
                                         <span
-                                            class="text-secondary x-small-text "
+                                            class="text-secondary x-small-text"
                                         >
                                             {req.fecha}
                                         </span>
@@ -361,10 +361,10 @@
                             <defs>
                                 <filter
                                     id="shadow"
-                                    x="-20%"
-                                    y="-20%"
-                                    width="140%"
-                                    height="140%"
+                                    x="-50%"
+                                    y="-50%"
+                                    width="200%"
+                                    height="200%"
                                 >
                                     <feDropShadow
                                         dx="0"
@@ -374,13 +374,17 @@
                                         flood-color="#000"
                                     />
                                 </filter>
+                                <radialGradient id="nodeGradient">
+                                    <stop offset="30%" stop-color="#1e293b" />
+                                    <stop offset="100%" stop-color="#0f172a" />
+                                </radialGradient>
                             </defs>
 
                             <g
                                 transform="translate({g.panX +
                                     400}, {g.panY}) scale({g.zoom})"
                             >
-                                {#each g.linksArbol as link}
+                                {#each g.linksArbol as link (link.source.id + "-" + link.target.id)}
                                     <line
                                         x1={link.source.x}
                                         y1={link.source.y}
@@ -388,27 +392,35 @@
                                         y2={link.target.y}
                                         stroke="#1e293b"
                                         stroke-width="2"
+                                        stroke-dasharray={link.target.label ===
+                                        "LAMBDA"
+                                            ? "5"
+                                            : "0"}
                                     />
                                 {/each}
 
-                                {#each g.nodosArbol as nodo}
+                                {#each g.nodosArbol as nodo (nodo.id)}
                                     <g
                                         transform="translate({nodo.x}, {nodo.y})"
                                     >
                                         <circle
-                                            r="20"
-                                            fill="#0f172a"
-                                            stroke="#38bdf8"
+                                            r={nodo.r}
+                                            fill="url(#nodeGradient)"
+                                            stroke={nodo.esTerminal
+                                                ? "#10b981"
+                                                : "#38bdf8"}
                                             stroke-width="2"
                                             filter="url(#shadow)"
                                         />
                                         <text
                                             text-anchor="middle"
                                             dominant-baseline="central"
-                                            fill="#e0e7ff"
+                                            fill={nodo.esTerminal
+                                                ? "#a7f3d0"
+                                                : "#e0e7ff"}
                                             font-family="monospace"
                                             font-weight="bold"
-                                            font-size="14"
+                                            font-size={nodo.fSize}
                                         >
                                             {nodo.label}
                                         </text>

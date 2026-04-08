@@ -179,9 +179,46 @@ ${mapeoTokens.substring(4)}
         };
     }
 
+    /* Metodo auxiliar que permite generar la estructura de la gramatica en texto plano */
+    generarTextoGramatica() {
+        if (!this.astProcesado || !this.astProcesado.sintactico) return "";
+
+        let textoGramatica = "/* --- ESTRUCTURA DE LA GRAMATICA --- */\n\n";
+
+        for (const instruccion of this.astProcesado.sintactico) {
+            
+            if (instruccion.tipo === 'PRODUCCION') {
+                const noTerminal = instruccion.padre;
+                let alternativasStr = [];
+
+                for (const alternativa of instruccion.alternativas) {
+                    let simbolosStr = [];
+                    
+                    for (const simbolo of alternativa) {
+                        if (simbolo.tipo === 'LAMBDA') {
+                            simbolosStr.push("LAMBDA");
+                        } else {
+                            simbolosStr.push(simbolo.valor);
+                        }
+                    }
+                    
+
+                    let unionSimbolos = simbolosStr.join(" ");
+                    alternativasStr.push(unionSimbolos === "" ? "LAMBDA" : unionSimbolos);
+                }
+
+                textoGramatica += `${noTerminal} <= ${alternativasStr.join(" | ")} ;\n\n`;
+            }
+        }
+
+        return textoGramatica;
+    }
+
 
     /*Metodo delegado para poder armar el .js como ANALIZADOR SINTACTICO DESCENDENTE */
     generarCodigoParserJS(nombreClase) {
+
+        const textoEstructura = this.generarTextoGramatica();
 
         /*Funciones recursivas generadas por el analizador sintactico*/
         let metodosRecursivos = "";
@@ -242,6 +279,11 @@ class Parser_${nombreClase} {
         this.indice = 0;
         this.errores = [];
         this.contadorId = 0;
+    }
+
+    /*Metodo generado para poder obtener el toString de la gramatica*/
+    get estructuraGramatica() {
+        return \`${textoEstructura}\`;
     }
 
     /*Metodo principal que permite ejecutar el analisis de la cadena de entrada*/
