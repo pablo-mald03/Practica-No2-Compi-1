@@ -77,6 +77,40 @@ public class WisonResource {
         }
 
     }
+    
+    /*@GET
+    @Path("analizador/{id}")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response obtenerAnalizadores(@PathParam("id") String id) {
+        try {
+            GramaticaService service = new GramaticaService();
+            FormularioDescargaDTO formDescarga = service.obtenerFormularioDescarga(id);
 
+            byte[] bytes = formDescarga.getContenido();
+
+            return Response.ok(bytes)
+                    .type(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + formDescarga.getNombre() + "\"")
+                    .header("Content-Length", bytes.length)
+                    .build();
+
+        } catch (DatosNoEncontradosException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("mensaje", e.getMessage()))
+                    .build();
+        } catch (ErrorInesperadoException ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("mensaje", ex.getMessage()))
+                    .build();
+        } catch (FormatoInvalidoException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("mensaje", ex.getMessage()))
+                    .build();
+        }
+    }
+*/
 
 }

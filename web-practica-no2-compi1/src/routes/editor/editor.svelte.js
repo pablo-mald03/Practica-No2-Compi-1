@@ -74,7 +74,7 @@ export function createEditorState() {
         set datosResultado(valor) { datosResultado = valor; },
 
         get gestorCompilacion() { return gestorCompilacion; },
-        
+
 
         /*Metodo que permite cargar un archivo de entrada*/
         cargarDesdeArchivo(event) {
@@ -181,19 +181,31 @@ export function createEditorState() {
 
             this.mostrarModalExito = false;
 
-            /*Metodo que permite generar los archivos para generar el analizador PATRON EXPERTO */
-            const { nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
-
-            /*Instanciacion del DTO*/
-            const gramaticaDTO = new GramaticaDTO(nombreArchivo, lexerJison, parserLL);
-
-            this.logConsola += `\n\n[INFO] Enviando la gramatica '${nombre}' a la API...`;
-
-            /*Metodo que permite generar el POST hacia la API para poder almacenar la gramatica generada (PATRON EXPERTO)*/
-            this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la Aplicacion...`;
-
-            /* POST a la API (PATRON EXPERTO) */
             try {
+                const { nombreArchivo, lexerJison, parserLL } = this.gestorCompilacion.generarAnalizadorLL(nombre);
+
+                const respuesta = await fetch('/api/compile-jison', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lexerJison, nombreArchivo })
+                });
+
+                const data = await respuesta.json();
+
+                if (!data.exito) {
+                    throw new Error("Error en la compilación interna de Jison: " + data.error);
+                }
+
+                const lexerJSCompilado = data.lexerJSCompilado;
+
+                /*Instanciacion del DTO*/
+                const gramaticaDTO = new GramaticaDTO(nombreArchivo, lexerJSCompilado, parserLL);
+
+                /*Metodo que permite generar el POST hacia la API para poder almacenar la gramatica generada (PATRON EXPERTO)*/
+                this.logConsola += `\n\n[INFO] Guardando la gramatica '${nombre}' en la Aplicacion...`;
+
+                /* POST a la API (PATRON EXPERTO) */
+
                 /*Metodo que permite guardar la gramatica en la aplicacion */
                 await guardarGramaticaAPI(gramaticaDTO);
 

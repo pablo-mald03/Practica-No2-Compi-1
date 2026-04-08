@@ -1,10 +1,12 @@
 
 package com.pablocompany.rest.api.practicano2.compi1.parsers.database;
 
+import com.pablocompany.rest.api.practicano2.compi1.exceptions.DatosNoEncontradosException;
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.ErrorInesperadoException;
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.FormatoInvalidoException;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.Gramatica;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import com.pablocompany.rest.api.practicano2.compi1.resources.connection.DBConnectionSingleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +30,7 @@ public class WisonCompilerDB {
     private static final String OBTENER_TODOS = "SELECT id, filename, fecha_publicacion, hora_publicacion FROM wison ORDER BY fecha_publicacion DESC LIMIT ? OFFSET ?";
 
     //Constante que permite obtener los analizadores de la gramatica 
-    private static final String OBTENER_GRAMATICA = "SELECT filename, archivo FROM wison WHERE id = ?";
+    private static final String OBTENER_GRAMATICA = "SELECT filename, lexer, parser FROM wison WHERE id = ?";
     
     
     //Metodo que sirve para poder almacenar una gramatica en el sistema
@@ -110,6 +112,29 @@ public class WisonCompilerDB {
         }
         
         return listaGramaticas;
+    }
+    
+    /*Metodo delegado para poder obtener los analizadores de la gramatica solicitada*/
+    public ParserLLDTO obtenerAnalizadores(int id) throws ErrorInesperadoException, DatosNoEncontradosException {
+        try (Connection conexion = DBConnectionSingleton.getInstance().getConnection(); PreparedStatement query = conexion.prepareStatement(OBTENER_GRAMATICA)) {
+
+            query.setInt(1, id);
+
+            try (ResultSet rs = query.executeQuery()) {
+                if (rs.next()) {
+                    return new ParserLLDTO(
+                            rs.getString("filename"),
+                            rs.getBytes("lexer"),
+                            rs.getBytes("parser")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new ErrorInesperadoException("Error al recuperar el archivo de la gramatica");
+        }
+
+        throw new DatosNoEncontradosException("No se ha encontrado una gramatica con el ID solicitado");
     }
 
     
