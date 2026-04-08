@@ -1,6 +1,6 @@
 
 /*Imports de la clase*/
-import { obtenerGramaticasAPI } from "$lib/services/GramaticaService";
+import { obtenerGramaticasAPI, obtenerAnalizadorAPI } from "$lib/services/GramaticaService";
 
 
 //Clase que permite exportar la logica de las gramaticas
@@ -35,6 +35,10 @@ export function createGrammarState() {
 
     //Array de numeros basados en los saltos de linea
     let lineas = $derived(entradaUsuario.split("\n").length);
+
+    /*Variables de codigo inyectado en caliente */
+    let analizadorInyectado = $state(null);
+    let procesandoInyeccion = $state(false);
 
 
     /*Apartado de atributos utilizados para poder interactuar con el canvas*/
@@ -74,12 +78,12 @@ export function createGrammarState() {
         let nodes = [];
         let links = [];
         let leafIndex = 0;
-        const H_SPACING = 60; 
-        const V_SPACING = 80; 
+        const H_SPACING = 60;
+        const V_SPACING = 80;
 
         function traverse(node, depth) {
             let n = { id: node.id, label: node.label, x: 0, y: depth * V_SPACING };
-            
+
             if (!node.children || node.children.length === 0) {
                 n.x = leafIndex * H_SPACING;
                 leafIndex++;
@@ -121,7 +125,7 @@ export function createGrammarState() {
             }
 
             requests = [...requests, ...nuevasGramaticas];
-            
+
             offset += limite;
 
         } catch (error) {
@@ -131,7 +135,52 @@ export function createGrammarState() {
         }
     }
 
+    /* ====================================================================
+       METODO DE INYECCION DE CODIGO EN CALIENTE
+       ==================================================================== */
+    async function inyectarGramaticaEnCaliente(id) {
+        if (procesandoInyeccion) return;
 
+        procesandoInyeccion = true;
+        gramaticaVisible = "Armando gramatica...\n\n";
+
+        try {
+            const parserData = await obtenerAnalizadorAPI(id);
+
+            gramaticaVisible = `Compilando y montando ${parserData.nombreArchivo} en memoria...`;
+
+            /*Creacion de los archivos*/
+            const lexerBlob = new Blob([parserData.lexer], { type: 'application/javascript' });
+            const parserBlob = new Blob([parserData.parser], { type: 'application/javascript' });
+
+            const lexerUrl = URL.createObjectURL(lexerBlob);
+            const parserUrl = URL.createObjectURL(parserBlob);
+
+            //Inyección de modulos
+            const moduloLexer = await import(/* @vite-ignore */ lexerUrl);
+            const moduloParser = await import(/* @vite-ignore */ parserUrl);
+
+            analizadorInyectado = {
+                nombre: parserData.nombreArchivo,
+                lexer: moduloLexer,
+                parser: moduloParser
+            };
+
+            //Se liberan las URL temporales
+            URL.revokeObjectURL(lexerUrl);
+            URL.revokeObjectURL(parserUrl);
+
+            gramaticaVisible = `Gramatica [ ${parserData.nombreArchivo} ] cargada correctamente.`;
+            requestSeleccionado = id;
+
+        } catch (error) {
+            console.error("[ERROR INYECCIÓN]:", error);
+            gramaticaVisible = `Error critico al inyectar: ${error.message}`;
+            analizadorInyectado = null;
+        } finally {
+            procesandoInyeccion = false;
+        }
+    }
 
     return {
 
@@ -164,18 +213,19 @@ export function createGrammarState() {
         /*Getter que de la linea en la qu esta el editor*/
         get lineas() { return lineas; },
 
-        cargarGramaticasPaginadas,
+        get analizadorInyectado() { return analizadorInyectado; },
 
-        /*Metodo que permite cargar la gramatica seleccionada mostrada dentro de la aplicacion */
-        aplicarGramatica(request) {
+        cargarGramaticasPaginadas,
+        async aplicarGramatica(request) {
             requestSeleccionado = request.id;
-            
-            gramaticaVisible = `Cargando detalles de la gramatica ${request.nombreGramatica}...`;
+   
+            await inyectarGramaticaEnCaliente(request.id);
         },
+
         /*Metodo que permite descargar la gramatica seleciconada */
         descargarGramatica(request) {
             const idGramatica = request.id;
-            
+
             //gramaticaVisible = `Cargando detalles de la gramatica ${request.nombreGramatica}...`;
         },
         /* Metodo para calcular fila y columna */
@@ -187,22 +237,55 @@ export function createGrammarState() {
             cursor.columna = lines[lines.length - 1].length + 1;
         },
 
-
-        /*METODO QUEMADO PARA PODER GENERAR LA GRAMATICA SIMULADA QUE SE BAJA DEL SERVIDOR*/
-        aplicarGramatica(request) {
-            requestSeleccionado = request.id;
-            gramaticaVisible = `Gramatica: ${request.nombre};\n\nstart: expr EOF;\nexpr: term (('+'|'-') term)*; ...`;
-        },
-
         /*Metodo que permite generar el arbol durante el analisis*/
         generarArbol() {
-            if (entradaUsuario.trim() !== "") {
-                mostrarArbol = true;
-                // SIMULACION DE ERRORES QUEMADO DE MOMENTO
-                erroresValidacion = [
-                    { lexema: "(", Tipo: "sintactico", fila: 1, columna: 2, descripcion: "Token inesperado en la entrada" }
-                ];
+            if (!entradaUsuario.trim()) {
+                return;
             }
+
+            if (!analizadorInyectado) {
+                alert("Primero debes seleccionar y cargar una gramatica.");
+                return;
+            }
+
+            mostrarArbol = true;
+            erroresValidacion = [];
+
+
+
+            try {
+                //FASE LEXICA: Obtener tokens usando el Lexer de Jison inyectado
+                const tokens = analizadorInyectado.lexer.parse(entradaUsuario);
+
+                // FASE SINTÁCTICA: Usar el Parser LL(1) inyectado
+                const ClaseParser = analizadorInyectado.parser;
+                const instanciaParser = new ClaseParser();
+
+                const resultado = instanciaParser.parse(tokens);
+
+                erroresValidacion = resultado.errores;
+
+                if (resultado.arbol) {
+                    calcularLayoutArbol(resultado.arbol);
+                }
+
+                if (erroresValidacion.length > 0) {
+                    console.warn("[ANALISIS] Se encontraron errores sintácticos.");
+                } else {
+                    console.log("[ANALISIS] ¡Entrada procesada con éxito!");
+                }
+
+            } catch (error) {
+                console.error("[ERROR CRITICO EN ANALISIS]:", error);
+                erroresValidacion = [{
+                    lexema: "N/A",
+                    tipo: "Critico",
+                    fila: 0,
+                    columna: 0,
+                    descripcion: "Error en la ejecución del analizador: " + error.message
+                }];
+            }
+
         },
 
         /*Metodo para sincronizar el scroll de los numeros con el text area*/
@@ -212,14 +295,6 @@ export function createGrammarState() {
                 lineNumbers.scrollTop = e.target.scrollTop;
             }
         },
-        /*Metodo que permite generar el arbol */
-        generarArbol() {
-            if (entradaUsuario.trim() !== "") {
-                mostrarArbol = true;
-                calcularLayoutArbol(arbolDerivacionPrueba);
-            }
-        },
-
         //Exportacion del estado del canvas
         get panX() { return panX; },
         get panY() { return panY; },

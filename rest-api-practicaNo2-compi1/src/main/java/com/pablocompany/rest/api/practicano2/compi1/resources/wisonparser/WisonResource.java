@@ -9,6 +9,7 @@ import com.pablocompany.rest.api.practicano2.compi1.exceptions.ErrorInesperadoEx
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.FormatoInvalidoException;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.dtos.GramaticaRequest;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.services.GramaticaService;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -51,8 +52,7 @@ public class WisonResource {
         }
 
     }
-    
-    
+
     //Metodo que permite listar todos lod formularios
     @GET
     @Path("uploaded/limit/{limite}/offset/{inicio}")
@@ -61,7 +61,7 @@ public class WisonResource {
             @PathParam("limite") String limite,
             @PathParam("inicio") String inicio) {
 
-         GramaticaService service = new GramaticaService();
+        GramaticaService service = new GramaticaService();
 
         try {
 
@@ -78,12 +78,13 @@ public class WisonResource {
 
     }
     
+    /*Metodo que permite descargar el archivo de la gramatica*/
     /*@GET
-    @Path("analizador/{id}")
+    @Path("descargar/{id}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
-    public Response obtenerAnalizadores(@PathParam("id") String id) {
+    public Response descargarFormulario(@PathParam("id") String id) {
         try {
-            GramaticaService service = new GramaticaService();
+            FormularioCrudService service = new FormularioCrudService();
             FormularioDescargaDTO formDescarga = service.obtenerFormularioDescarga(id);
 
             byte[] bytes = formDescarga.getContenido();
@@ -110,7 +111,26 @@ public class WisonResource {
                     .entity(Map.of("mensaje", ex.getMessage()))
                     .build();
         }
+    }*/
+
+    /*Metodo que permite obtener las gramaticas almacenadas*/
+    @GET
+    @Path("analizador/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response obtenerAnalizadores(@PathParam("id") String id) {
+        try {
+            GramaticaService service = new GramaticaService();
+            ParserLLDTO parserData = service.obtenerGramaticaAnalisis(id);
+
+            return Response.ok(parserData).build();
+
+        } catch (DatosNoEncontradosException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("mensaje", e.getMessage())).build();
+        } catch (ErrorInesperadoException ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("mensaje", ex.getMessage())).build();
+        } catch (FormatoInvalidoException ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("mensaje", ex.getMessage())).build();
+        }
     }
-*/
 
 }

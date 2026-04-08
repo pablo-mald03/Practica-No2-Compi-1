@@ -301,7 +301,7 @@ ${metodosRecursivos}
 } 
 
 /*Se genera la exportacion del parser generado*/
-module.exports = Parser_${nombreClase};`;
+export default Parser_${nombreClase};`;
     }
 }
 

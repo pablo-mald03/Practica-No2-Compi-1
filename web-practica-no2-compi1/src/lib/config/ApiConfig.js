@@ -22,4 +22,9 @@ export class ApiConfig {
         return `${this.getGramaticasUrl()}/uploaded/limit/${limite}/offset/${inicio}`;
     }
 
+    /*Metodo que permite conectar con el endpoint para poder obtener los datos del analizador */
+    static getAnalizadorUrl(id) {
+        return `${this.getGramaticasUrl()}/analizador/${id}`;
+    }
+
 }

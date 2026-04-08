@@ -8,6 +8,7 @@ import com.pablocompany.rest.api.practicano2.compi1.parsers.dtos.GramaticaReques
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.Gramatica;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -56,6 +57,20 @@ public class GramaticaService {
         WisonCompilerDB wisonDb = new WisonCompilerDB();
 
         return wisonDb.gramaticasRegistradas(limitInt, offsetInt);
+    }
+    
+    /*Metodo que permite obtener el analizador lexico y sintactico de la gramatica*/
+    public ParserLLDTO obtenerGramaticaAnalisis(String id) throws FormatoInvalidoException, ErrorInesperadoException, DatosNoEncontradosException {
+
+        if (!StringUtils.isNumeric(id)) {
+            throw new FormatoInvalidoException("El id de la gramatica no es numerico o esta vacio");
+        }
+
+        WisonCompilerDB wisonDb = new WisonCompilerDB();
+
+        int idBuscar = Integer.parseInt(id);
+
+        return wisonDb.obtenerAnalizadores(idBuscar);
     }
 
 }

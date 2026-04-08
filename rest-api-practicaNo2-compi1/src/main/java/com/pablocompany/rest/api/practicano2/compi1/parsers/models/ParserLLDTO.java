@@ -10,16 +10,16 @@ public class ParserLLDTO {
     
     //Atributos
     private String nombreArchivo;
-    private byte [] lexer;
-    private byte [] parser;
+    private String lexer;
+    private String parser;
 
-    public ParserLLDTO(String nombreArchivo, byte[] lexer, byte[] parser) {
+    public ParserLLDTO(String nombreArchivo, String lexer, String parser) {
         this.nombreArchivo = nombreArchivo;
         this.lexer = lexer;
         this.parser = parser;
     }
     
-    /*Metodos getter y setter*/
+    /*Metodos getters y setters*/
     public String getNombreArchivo() {
         return nombreArchivo;
     }
@@ -28,21 +28,22 @@ public class ParserLLDTO {
         this.nombreArchivo = nombreArchivo;
     }
 
-    public byte[] getLexer() {
+    public String getLexer() {
         return lexer;
     }
 
-    public void setLexer(byte[] lexer) {
+    public void setLexer(String lexer) {
         this.lexer = lexer;
     }
 
-    public byte[] getParser() {
+    public String getParser() {
         return parser;
     }
 
-    public void setParser(byte[] parser) {
+    public void setParser(String parser) {
         this.parser = parser;
     }
 
+    
     
 }

@@ -53,3 +53,26 @@ export const obtenerGramaticasAPI = async (limite, inicio) => {
         throw error;
     }
 };
+
+/*REQUEST QUE PERMITE RETORNAR EL DTO CON LOS STRINGS DEL LEXER Y PARSER*/
+export const obtenerAnalizadorAPI = async (id) => {
+    const endpoint = ApiConfig.getAnalizadorUrl(id);
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok) {
+            // Capturamos el Map.of("mensaje", e.getMessage()) que mandas desde Java
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.mensaje || `Error al obtener el analizador (${response.status})`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("[GramaticaService] Error en GET Analizador:", error);
+        throw error;
+    }
+};

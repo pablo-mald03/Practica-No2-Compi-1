@@ -1,4 +1,3 @@
-
 package com.pablocompany.rest.api.practicano2.compi1.parsers.database;
 
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.DatosNoEncontradosException;
@@ -8,6 +7,7 @@ import com.pablocompany.rest.api.practicano2.compi1.parsers.models.Gramatica;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.ParserLLDTO;
 import com.pablocompany.rest.api.practicano2.compi1.resources.connection.DBConnectionSingleton;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,8 +22,8 @@ import java.util.List;
  */
 /*Clase delegada para poder comunicarse con la base de datos*/
 public class WisonCompilerDB {
-    
-     //Constante que permite insertar una gramatica a la base de datos
+
+    //Constante que permite insertar una gramatica a la base de datos
     private static final String INSERT_GRAMATICA = "INSERT INTO wison (filename,lexer, parser) VALUES (?, ?, ?)";
 
     //Constante que permite consultar todos las las gramaticas (paginacion)
@@ -31,8 +31,7 @@ public class WisonCompilerDB {
 
     //Constante que permite obtener los analizadores de la gramatica 
     private static final String OBTENER_GRAMATICA = "SELECT filename, lexer, parser FROM wison WHERE id = ?";
-    
-    
+
     //Metodo que sirve para poder almacenar una gramatica en el sistema
     public boolean insertarGramatica(Gramatica referenciaGramatica) throws ErrorInesperadoException, FormatoInvalidoException {
 
@@ -82,7 +81,7 @@ public class WisonCompilerDB {
             return filasAfectadas;
         }
     }
-    
+
     /*Metodo que permite obtener las gramaticas almacenadas*/
     public List<GramaticaModelDTO> gramaticasRegistradas(int limite, int inicio) throws ErrorInesperadoException {
         List<GramaticaModelDTO> listaGramaticas = new ArrayList<>();
@@ -110,10 +109,10 @@ public class WisonCompilerDB {
         } catch (SQLException e) {
             throw new ErrorInesperadoException("Error al obtener el listado de gramaticas paginado: " + e.getMessage());
         }
-        
+
         return listaGramaticas;
     }
-    
+
     /*Metodo delegado para poder obtener los analizadores de la gramatica solicitada*/
     public ParserLLDTO obtenerAnalizadores(int id) throws ErrorInesperadoException, DatosNoEncontradosException {
         try (Connection conexion = DBConnectionSingleton.getInstance().getConnection(); PreparedStatement query = conexion.prepareStatement(OBTENER_GRAMATICA)) {
@@ -122,10 +121,17 @@ public class WisonCompilerDB {
 
             try (ResultSet rs = query.executeQuery()) {
                 if (rs.next()) {
+
+                    byte[] lexerBytes = rs.getBytes("lexer");
+                    byte[] parserBytes = rs.getBytes("parser");
+
+                    String lexerTexto = new String(lexerBytes, StandardCharsets.UTF_8);
+                    String parserTexto = new String(parserBytes, StandardCharsets.UTF_8);
+
                     return new ParserLLDTO(
                             rs.getString("filename"),
-                            rs.getBytes("lexer"),
-                            rs.getBytes("parser")
+                            lexerTexto,
+                            parserTexto
                     );
                 }
             }
@@ -137,5 +143,4 @@ public class WisonCompilerDB {
         throw new DatosNoEncontradosException("No se ha encontrado una gramatica con el ID solicitado");
     }
 
-    
 }
