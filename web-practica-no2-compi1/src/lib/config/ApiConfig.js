@@ -17,4 +17,9 @@ export class ApiConfig {
         return `${this.getBaseUrl()}/wison`;
     }
 
+    //Metodo que permite retornar las gramaticas subidas en la API
+    static getListadoUrl(limite, inicio) {
+        return `${this.getGramaticasUrl()}/uploaded/limit/${limite}/offset/${inicio}`;
+    }
+
 }

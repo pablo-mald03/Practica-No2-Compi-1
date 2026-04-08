@@ -4,16 +4,21 @@
  */
 package com.pablocompany.rest.api.practicano2.compi1.resources.wisonparser;
 
+import com.pablocompany.rest.api.practicano2.compi1.exceptions.DatosNoEncontradosException;
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.ErrorInesperadoException;
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.FormatoInvalidoException;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.dtos.GramaticaRequest;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.services.GramaticaService;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,5 +51,32 @@ public class WisonResource {
         }
 
     }
+    
+    
+    //Metodo que permite listar todos lod formularios
+    @GET
+    @Path("uploaded/limit/{limite}/offset/{inicio}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response gramaticasSubidas(
+            @PathParam("limite") String limite,
+            @PathParam("inicio") String inicio) {
+
+         GramaticaService service = new GramaticaService();
+
+        try {
+
+            List<GramaticaModelDTO> lista = service.obtenerGramaticasListado(limite, inicio);
+            return Response.ok(lista).build();
+
+        } catch (DatosNoEncontradosException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("mensaje", e.getMessage())).build();
+        } catch (ErrorInesperadoException ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("mensaje", ex.getMessage())).build();
+        } catch (FormatoInvalidoException ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("mensaje", ex.getMessage())).build();
+        }
+
+    }
+
 
 }

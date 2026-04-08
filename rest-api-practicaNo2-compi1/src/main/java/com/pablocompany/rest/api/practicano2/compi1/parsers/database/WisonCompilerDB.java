@@ -4,10 +4,15 @@ package com.pablocompany.rest.api.practicano2.compi1.parsers.database;
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.ErrorInesperadoException;
 import com.pablocompany.rest.api.practicano2.compi1.exceptions.FormatoInvalidoException;
 import com.pablocompany.rest.api.practicano2.compi1.parsers.models.Gramatica;
+import com.pablocompany.rest.api.practicano2.compi1.parsers.models.GramaticaModelDTO;
 import com.pablocompany.rest.api.practicano2.compi1.resources.connection.DBConnectionSingleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -16,13 +21,13 @@ import java.sql.SQLException;
 /*Clase delegada para poder comunicarse con la base de datos*/
 public class WisonCompilerDB {
     
-     //Constante que permite insertar un formulario a la base de datos
+     //Constante que permite insertar una gramatica a la base de datos
     private static final String INSERT_GRAMATICA = "INSERT INTO wison (filename,lexer, parser) VALUES (?, ?, ?)";
 
-    //Constante que permite consultar todos los formularios (sin paginacion)
-    private static final String OBTENER_TODOS = "SELECT id, filename, fecha_publicacion, hora_publicacion FROM wison LIMIT ? OFFSET ? DESC";
+    //Constante que permite consultar todos las las gramaticas (paginacion)
+    private static final String OBTENER_TODOS = "SELECT id, filename, fecha_publicacion, hora_publicacion FROM wison ORDER BY fecha_publicacion DESC LIMIT ? OFFSET ?";
 
-    //Constante que permite obtener el contenido dentro del formulario 
+    //Constante que permite obtener los analizadores de la gramatica 
     private static final String OBTENER_GRAMATICA = "SELECT filename, archivo FROM wison WHERE id = ?";
     
     
@@ -74,6 +79,37 @@ public class WisonCompilerDB {
             int filasAfectadas = preparedStmt.executeUpdate();
             return filasAfectadas;
         }
+    }
+    
+    /*Metodo que permite obtener las gramaticas almacenadas*/
+    public List<GramaticaModelDTO> gramaticasRegistradas(int limite, int inicio) throws ErrorInesperadoException {
+        List<GramaticaModelDTO> listaGramaticas = new ArrayList<>();
+        SimpleDateFormat fmtFecha = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat fmtHora = new SimpleDateFormat("HH:mm:ss");
+
+        try (Connection connection = DBConnectionSingleton.getInstance().getConnection(); PreparedStatement query = connection.prepareStatement(OBTENER_TODOS)) {
+
+            query.setInt(1, limite);
+            query.setInt(2, inicio);
+
+            ResultSet resultSet = query.executeQuery();
+
+            while (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("id"));
+                String filename = resultSet.getString("filename");
+                java.sql.Date sqlFecha = resultSet.getDate("fecha_publicacion");
+                java.sql.Time sqlHora = resultSet.getTime("hora_publicacion");
+
+                String fechaStr = (sqlFecha != null) ? fmtFecha.format(sqlFecha) : "0000-00-00";
+                String horaStr = (sqlHora != null) ? fmtHora.format(sqlHora) : "00:00:00";
+
+                listaGramaticas.add(new GramaticaModelDTO(id, filename, fechaStr, horaStr));
+            }
+        } catch (SQLException e) {
+            throw new ErrorInesperadoException("Error al obtener el listado de gramaticas paginado: " + e.getMessage());
+        }
+        
+        return listaGramaticas;
     }
 
     

@@ -1,10 +1,15 @@
 <script>
     import "./gramatica.css";
-
+    import { onMount } from "svelte";
     import { createGrammarState } from "./gramatica.svelte.js";
 
     //Se inicializa el estado
     const g = createGrammarState();
+
+    /*Metodo que se carga al momento de navegar al apartado*/
+    onMount(() => {
+        g.cargarGramaticasPaginadas();
+    });
 </script>
 
 <div
@@ -25,7 +30,7 @@
                         <span
                             class="badge bg-success-subtle text-success border border-success-subtle"
                         >
-                            API lista
+                            API conectada
                         </span>
                     </div>
                     <div
@@ -41,29 +46,83 @@
                             >
                                 <div class="card-body p-2">
                                     <div
-                                        class="d-flex justify-content-between align-items-start"
+                                        class="d-flex justify-content-between align-items-start mb-1"
                                     >
-                                        <h6 class="text-white mb-1 small">
-                                            {req.nombre}
-                                        </h6>
-                                        <span class="text-secondary small-text"
-                                            >{req.fecha}</span
+                                        <h6
+                                            class="text-white mb-0 small text-truncate"
+                                            style="max-width: 70%;"
+                                            title={req.nombreGramatica}
                                         >
+                                            {req.nombreGramatica}
+                                        </h6>
+                                        <span
+                                            class="text-secondary x-small-text "
+                                        >
+                                            {req.fecha}
+                                        </span>
                                     </div>
-                                    <p class="mb-2 text-secondary small-text">
-                                        Type: {req.lenguaje}
+
+                                    <p class="mb-2 text-secondary x-small-text">
+                                        <i class="bi bi-clock me-4"
+                                        ></i>{req.hora}
                                     </p>
-                                    <button
-                                        class="btn btn-sm {g.requestSeleccionado ===
-                                        req.id
-                                            ? 'btn-info'
-                                            : 'btn-outline-info'} w-100 py-0"
-                                        onclick={() => g.aplicarGramatica(req)}
-                                        >Aplicar</button
-                                    >
+
+                                    <div class="d-flex gap-1">
+                                        <button
+                                            class="btn btn-sm {g.requestSeleccionado ===
+                                            req.id
+                                                ? 'btn-info'
+                                                : 'btn-outline-info'} flex-grow-1 py-0 small-text"
+                                            onclick={() =>
+                                                g.aplicarGramatica(req)}
+                                        >
+                                            <i class="bi bi-play-fill"></i> Aplicar
+                                        </button>
+
+                                        <button
+                                            class="btn btn-sm btn-outline-warning py-0 px-2"
+                                            title="Descargar Gramatica"
+                                            onclick={() =>
+                                                g.descargarGramatica(req)}
+                                        >
+                                            <i class="bi bi-download"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         {/each}
+
+                        {#if g.hayMas}
+                            <div class="text-center mt-3 mb-1">
+                                <button
+                                    class="btn btn-sm btn-outline-success w-100"
+                                    onclick={() =>
+                                        g.cargarGramaticasPaginadas()}
+                                    disabled={g.cargando}
+                                >
+                                    {#if g.cargando}
+                                        <span
+                                            class="spinner-border spinner-border-sm me-1"
+                                            aria-hidden="true"
+                                        ></span>
+                                        Cargando...
+                                    {:else}
+                                        <i class="bi bi-plus-circle me-1"></i> Cargar
+                                        más
+                                    {/if}
+                                </button>
+                            </div>
+                        {:else if g.requests.length > 0}
+                            <div
+                                class="text-center mt-3 mb-1 text-secondary small"
+                            >
+                                <em>No hay mas gramaticas</em>
+                            </div>
+                        {:else if !g.cargando && g.requests.length === 0}
+                            <div class="text-center mt-4 text-secondary small">
+                                <em>No hay gramaticas guardadas aun.</em>
+                            </div>
+                        {/if}
                     </div>
                 </div>
             </div>

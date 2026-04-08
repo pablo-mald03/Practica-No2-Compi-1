@@ -1,22 +1,29 @@
+
+/*Imports de la clase*/
+import { obtenerGramaticasAPI } from "$lib/services/GramaticaService";
+
+
 //Clase que permite exportar la logica de las gramaticas
 export function createGrammarState() {
 
-    /*CODIGO QUEMADO*/
-    let requests = $state([
-        { id: 1, nombre: "Calculadora_Base", fecha: "2026-04-03", lenguaje: "Expresiones" },
-        { id: 2, nombre: "Analizador_JSON", fecha: "2026-04-02", lenguaje: "Estructuras" },
-        { id: 3, nombre: "Analizador_JSON", fecha: "2026-04-02", lenguaje: "Estructuras" },
-        { id: 4, nombre: "Analizador_JSON", fecha: "2026-04-02", lenguaje: "Estructuras" },
-        { id: 5, nombre: "Analizador_JSON", fecha: "2026-04-02", lenguaje: "Estructuras" }
+    /*Listado de las gramaticas almacenadas en la Web*/
+    let requests = $state([]);
 
-    ]);
+    // Variables para la paginación
+    let limite = 10;
+    let offset = 0;
+    let hayMas = $state(true);
+    let cargando = $state(false);
+
+
 
     /*Atributos que permiten controlar las entradas y las evaluaciones de lo que ingresa el usuario*/
     let entradaUsuario = $state("");
 
-    /*CODIGO QUEMADO DE MOMENTO*/
-    let gramaticaVisible = $state("// B -> N + id... \n C -> B + C \n K-> T +B \n B -> N + id... \n C -> B + C \n K-> T +B \n B -> N + id... \n C -> B + C \n K-> T +B \n B -> N + id... \n C -> B + C \n K-> T +B \n B -> N + id... \n C -> B + C \n K-> T +B \n B -> N + id... \n C -> B + C \n K-> T +B \n B -> N + id... \n C -> B + C \n K-> T +B \n");
+    /*Atributos que representan a las gramaticas que se cargan para poderlas utilizar*/
     let requestSeleccionado = $state(null);
+    let gramaticaVisible = $state("");
+
     let mostrarArbol = $state(false);
 
     /*Atributo que guarda el estado del cursor*/
@@ -101,9 +108,40 @@ export function createGrammarState() {
         linksArbol = links;
     }
 
+    /*Metodo que permite conectarse con la API para poder cargar las gramaticas almacenadas en la aplicacion*/
+    async function cargarGramaticasPaginadas() {
+        if (cargando || !hayMas) return;
+
+        cargando = true;
+        try {
+            const nuevasGramaticas = await obtenerGramaticasAPI(limite, offset);
+
+            if (nuevasGramaticas.length < limite) {
+                hayMas = false;
+            }
+
+            requests = [...requests, ...nuevasGramaticas];
+            
+            offset += limite;
+
+        } catch (error) {
+            console.error("[ERROR] No se pudieron cargar las gramáticas:", error.message);
+        } finally {
+            cargando = false;
+        }
+    }
+
 
 
     return {
+
+        /*Variables reactivas*/
+        get requests() { return requests; },
+        get hayMas() { return hayMas; },
+        get cargando() { return cargando; },
+        get requestSeleccionado() { return requestSeleccionado; },
+
+
         get requests() { return requests; },
         get entradaUsuario() { return entradaUsuario; },
 
@@ -126,7 +164,20 @@ export function createGrammarState() {
         /*Getter que de la linea en la qu esta el editor*/
         get lineas() { return lineas; },
 
+        cargarGramaticasPaginadas,
 
+        /*Metodo que permite cargar la gramatica seleccionada mostrada dentro de la aplicacion */
+        aplicarGramatica(request) {
+            requestSeleccionado = request.id;
+            
+            gramaticaVisible = `Cargando detalles de la gramatica ${request.nombreGramatica}...`;
+        },
+        /*Metodo que permite descargar la gramatica seleciconada */
+        descargarGramatica(request) {
+            const idGramatica = request.id;
+            
+            //gramaticaVisible = `Cargando detalles de la gramatica ${request.nombreGramatica}...`;
+        },
         /* Metodo para calcular fila y columna */
         actualizarPosicion(e) {
             const text = e.target.value;

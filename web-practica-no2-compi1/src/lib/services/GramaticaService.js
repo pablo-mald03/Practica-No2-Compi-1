@@ -31,3 +31,25 @@ export const guardarGramaticaAPI = async (dto) => {
     }
     return true;
 };
+
+/*REQUEST QUE PERMITE RETORNAR LA CANTIDAD DE GRAMATICAS CARGADAS EN LA API*/
+export const obtenerGramaticasAPI = async (limite, inicio) => {
+    const endpoint = ApiConfig.getListadoUrl(limite, inicio);
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.mensaje || `Error al obtener listado (${response.status})`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("[GramaticaService] Error en GET:", error);
+        throw error;
+    }
+};
