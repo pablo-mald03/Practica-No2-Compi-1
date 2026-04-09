@@ -70,7 +70,9 @@ export default class GestorCompilador {
             };
         }
 
-        this.gestorAnalizadorLLTabla = new GestorAnalizadorLL(this.ast, this.tablaLL1, this.tablaSimbolosGlobal);
+        let listadoLimpio = this.listaTerminalesAjustados();
+
+        this.gestorAnalizadorLLTabla = new GestorAnalizadorLL(this.ast, this.tablaLL1, this.tablaSimbolosGlobal, listadoLimpio);
 
         const { nombreGenerado, lexerGenerado, parserGenerado } = this.gestorAnalizadorLLTabla.generarAnalizadores(nombreAnalizador);
 
@@ -91,51 +93,66 @@ export default class GestorCompilador {
             };
         }
 
-        let listaMacros = [];
+        let listaMacros = new Set();
+        let listaTerminales = [];
 
-        let indice = 0;
-
-/*
         for (let instruccion of this.ast.lexico) {
-
             if (instruccion.tipo === 'TERMINAL') {
-
-                const idTerminal = instruccion.id;
-
-                //Verificacion si el simbolo ya existe
-                if (this.tablaSimbolos.obtener(idTerminal)) {
-
-                    this.agregarError(
-                        idTerminal,
-                        `El terminal '${idTerminal}' ya ha sido declarado previamente.`,
-                        instruccion.fila,
-                        instruccion.columna
-                    );
-
-                } else {
-
-                    const nuevoSimbolo = new Simbolo(
-                        idTerminal,
-                        TipoSimbolo.TERMINAL,
-                        instruccion.fila,
-                        instruccion.columna,
-                        instruccion.regla
-                    );
-
-                    this.tablaSimbolos.agregar(nuevoSimbolo);
-
-                }
-
+                this.encontrarTerminales(instruccion.regla, listaMacros);
+                listaTerminales.push(instruccion);
             }
         }
 
-*/
-        /* for (let instruccion of instrucciones) {
-            if (instruccion.tipo === 'DECLARACION_NO_TERMINAL') {
-                const idNoTerminal = instruccion.id;
+        let listaOrdenada = this.listarTerminalesOrden(listaMacros,listaTerminales);
 
-                // 1. Verificamos si ya existe en la tabla
-                if (this.tablaSimbolos.existe(idNoTerminal)) {*/
+        return listaOrdenada;
+    }
+
+
+    /*Metodo que permite poder generar la logica para poder reorganizar los macros*/
+    listarTerminalesOrden(listaMacros, listaTerminales) {
+
+        let listaTerminalesRegulares = [];
+        let listaTerminalesMacros = [];
+
+        /*Fase 1: pick de terminales*/
+
+        for (let terminal of listaTerminales) {
+            
+            if (listaMacros.has(terminal.id)) {
+
+                listaTerminalesMacros.push(terminal);
+            } else {
+ 
+                listaTerminalesRegulares.push(terminal);
+            }
+        }
+
+        //Fase 2: hacer el pop para dejar la lista tal cual solo con los macros abajo
+        let listaLimpia = listaTerminalesRegulares.concat(listaTerminalesMacros);
+
+        return listaLimpia;
+    }
+
+
+    /*Metodo utilizado para poder retornar el listado de  los terminales que tienen macros ajustados*/
+    encontrarTerminales(elementos, listaMacros) {
+
+        for (let elemento of elementos) {
+            const unidad = elemento.unidad;
+
+            if (unidad.tipo === 'REFERENCIA_ID') {
+                const idMacro = unidad.valor;
+                const simboloReferenciado = this.tablaSimbolosGlobal.obtener(idMacro);
+
+                if (simboloReferenciado) {
+                    listaMacros.add(idMacro); 
+                }
+            }
+            else if (unidad.tipo === 'AGRUPACION') {
+                this.encontrarTerminales(unidad.contenido, listaMacros);
+            }
+        }
     }
 
 

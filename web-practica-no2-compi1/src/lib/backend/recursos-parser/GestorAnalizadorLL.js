@@ -2,11 +2,12 @@
 
 export default class GestorAnalizadorLL {
 
-    constructor(astGeneral, tablaGeneradaLL, tablaSimbolosGlobal) {
+    constructor(astGeneral, tablaGeneradaLL, tablaSimbolosGlobal,listaLexer) {
         /*Representacion de la tabla LL(1) */
         this.tablaLL1 = tablaGeneradaLL;
         this.astProcesado = astGeneral;
         this.tablaSimbolos = tablaSimbolosGlobal;
+        this.listaLexerLimpio = listaLexer;
     }
 
 
@@ -46,7 +47,7 @@ export default class GestorAnalizadorLL {
 
         let contador = 0;
 
-        for (const terminal of this.astProcesado.lexico) {
+        for (const terminal of this.listaLexerLimpio) {
 
             /*Parte lexica: Traduccion de TERMINALES A EXPRESIONES REGULARES */
 
