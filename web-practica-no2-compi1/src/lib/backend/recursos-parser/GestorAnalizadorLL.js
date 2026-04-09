@@ -260,7 +260,8 @@ ${mapeoTokens.substring(4)}
 
             metodosRecursivos += `              default:\n`;
             metodosRecursivos += `                  this.errores.push({lexema: \`'\${tokenActual.valor}'\`,tipo: 'Sintactico', mensaje: \`Error sintactico en ${noTerminal}: Token inesperado '\${tokenActual.tipo}'\`, fila: tokenActual.fila, columna: tokenActual.columna });\n`;
-            metodosRecursivos += `                  //Produccion de error para la produccion\n`;
+            metodosRecursivos += `                  this.indice++;\n`;
+            metodosRecursivos += `                  //Produccion de error para graficarla\n`;
             metodosRecursivos += `                  nodo.children.push({ id: this.generarId(), label: "ERROR", children: [] });\n`;
             metodosRecursivos += `                  break;\n`;
             metodosRecursivos += `          }\n`;
@@ -316,15 +317,29 @@ class Parser_${nombreClase} {
 
     /*Metodo utilizado para poder obtener los tokens generados (Los que vienen del lexer)*/
     obtenerToken(){
-        if(this.indice < this.tokens.length){
-            return this.tokens[this.indice];
+
+        let tokenActual = null;
+
+        /*Modo panico si hay errores lexicos*/
+        while (this.indice < this.tokens.length) {
+            tokenActual = this.tokens[this.indice];
+
+            if (tokenActual.tipo === 'ERROR_LEXICO') {
+                this.errores.push({
+                    lexema: tokenActual.valor, tipo: 'Lexico', mensaje: \`Caracter no reconocido por el lenguaje: '\${tokenActual.valor}'\`, fila: tokenActual.fila, columna: tokenActual.columna 
+                });
+                this.indice++;
+            } else {
+                return tokenActual;
+            }
         }
-        /*--Caso de no encontrar el token (Error lexico)--*/
+
+        /*--Caso de no encontrar el token (Llego al final sin tokens validos)--*/
         return { 
-                tipo: 'EOF', 
-                valor: 'EOF', 
-                fila: -1, 
-                columna: -1 
+            tipo: 'EOF', 
+            valor: 'EOF', 
+            fila: -1, 
+            columna: -1 
         };
     }
 
@@ -338,6 +353,7 @@ class Parser_${nombreClase} {
             return { id: this.generarId(), label: \`'\${tokenActual.valor}'\`, children: [] };
         } else {
             this.errores.push({lexema: tokenActual.valor, tipo: 'Sintactico', mensaje: \`Se esperaba \${tokenEsperado} pero vino: \${tokenActual.tipo}\`, fila: tokenActual.fila, columna: tokenActual.columna });
+            this.indice++;
             return { id: this.generarId(), label: "ERROR", children: [] };
         }
     }
