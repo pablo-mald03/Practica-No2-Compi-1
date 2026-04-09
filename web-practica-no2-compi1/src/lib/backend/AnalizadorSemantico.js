@@ -85,7 +85,64 @@ export default class AnalizadorSemantico {
             }
         }
 
+        this.verificarMacros();
+
     }
+
+    /*Metodo auxiliar que permite validar que en las concatenaciones con macros tambien ya existan*/
+    verificarMacros() {
+
+        if (!this.ast || !this.ast.lexico) {
+            this.agregarError("AST", "La estructura de Wison esta incompleta.", -1, -1);
+            return;
+        }
+
+        for (let instruccion of this.ast.lexico) {
+            if (instruccion.tipo === 'TERMINAL') {
+                this.validarElementosRecursivo(instruccion.regla);
+            }
+        }
+    }
+
+    /*Metodo recursivo que permite encontrar recursivamente los macros o valores de ER invalidos*/
+    validarElementosRecursivo(elementos) {
+
+        for (let elemento of elementos) {
+            const unidad = elemento.unidad;
+            const modificadorActual = elemento.modificador;
+
+            if (unidad.tipo === 'REFERENCIA_ID') {
+                const idMacro = unidad.valor;
+                const simboloReferenciado = this.tablaSimbolos.obtener(idMacro);
+
+                if (!simboloReferenciado) {
+                    this.agregarError(
+                        idMacro,
+                        `El macro '${idMacro}' no existe o no ha sido declarado previamente.`,
+                        unidad.fila,
+                        unidad.columna
+                    );
+                } else {
+                    if (modificadorActual) {
+                        const reglaOriginal = simboloReferenciado.regla;
+
+                        if (reglaOriginal.length === 1 && reglaOriginal[0].modificador) {
+                            this.agregarError(
+                                idMacro,
+                                `Conflicto: Estas aplicando '${modificadorActual}' al macro '${idMacro}', que ya contiene el modificador '${reglaOriginal[0].modificador}'. Esto genera una ER invalida.`,
+                                unidad.fila,
+                                unidad.columna
+                            );
+                        }
+                    }
+                }
+            }
+            else if (unidad.tipo === 'AGRUPACION') {
+                this.validarElementosRecursivo(unidad.contenido);
+            }
+        }
+    }
+
 
     /*Metodo que permite ejecutar la validacion del apartado sintactico de Wison */
     procesarParteSintactica() {
@@ -110,7 +167,6 @@ export default class AnalizadorSemantico {
             if (instruccion.tipo === 'DECLARACION_NO_TERMINAL') {
                 const idNoTerminal = instruccion.id;
 
-                // 1. Verificamos si ya existe en la tabla
                 if (this.tablaSimbolos.existe(idNoTerminal)) {
                     const simboloExistente = this.tablaSimbolos.obtener(idNoTerminal);
 
@@ -134,7 +190,6 @@ export default class AnalizadorSemantico {
                         );
                     }
                 } else {
-                    //Se registra si no existe
                     const nuevoSimbolo = new Simbolo(
                         idNoTerminal,
                         TipoSimbolo.NO_TERMINAL,
