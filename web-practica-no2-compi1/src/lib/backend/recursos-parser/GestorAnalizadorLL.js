@@ -2,7 +2,7 @@
 
 export default class GestorAnalizadorLL {
 
-    constructor(astGeneral, tablaGeneradaLL, tablaSimbolosGlobal,listaLexer) {
+    constructor(astGeneral, tablaGeneradaLL, tablaSimbolosGlobal, listaLexer) {
         /*Representacion de la tabla LL(1) */
         this.tablaLL1 = tablaGeneradaLL;
         this.astProcesado = astGeneral;
@@ -115,7 +115,7 @@ ${mapeoTokens.substring(4)}
 
             switch (unidad.tipo) {
                 case 'CADENA':
-                    fragmento = `"${unidad.valor}"`;
+                    fragmento = unidad.valor.replace(/[^a-zA-Z0-9]/g, '\\$&');
                     break;
 
                 case 'RANGO':
@@ -124,7 +124,13 @@ ${mapeoTokens.substring(4)}
 
                 case 'AGRUPACION':
                     const contenidoInterno = this.traducirReglaRegex(unidad.contenido);
-                    fragmento = `(${contenidoInterno})`;
+
+                    if (modificador) {
+                        fragmento = `(${contenidoInterno})`;
+                    } else {
+                        fragmento = contenidoInterno;
+                    }
+
                     break;
 
                 case 'REFERENCIA_ID':
@@ -187,14 +193,14 @@ ${mapeoTokens.substring(4)}
         let textoGramatica = "/* --- ESTRUCTURA DE LA GRAMATICA --- */\n\n";
 
         for (const instruccion of this.astProcesado.sintactico) {
-            
+
             if (instruccion.tipo === 'PRODUCCION') {
                 const noTerminal = instruccion.padre;
                 let alternativasStr = [];
 
                 for (const alternativa of instruccion.alternativas) {
                     let simbolosStr = [];
-                    
+
                     for (const simbolo of alternativa) {
                         if (simbolo.tipo === 'LAMBDA') {
                             simbolosStr.push("LAMBDA");
@@ -202,7 +208,7 @@ ${mapeoTokens.substring(4)}
                             simbolosStr.push(simbolo.valor);
                         }
                     }
-                    
+
 
                     let unionSimbolos = simbolosStr.join(" ");
                     alternativasStr.push(unionSimbolos === "" ? "LAMBDA" : unionSimbolos);
@@ -247,10 +253,10 @@ ${mapeoTokens.substring(4)}
                     if (simbolo.tipo === 'TERMINAL') {
                         let simboloMayuscula = simbolo.valor.trim().toUpperCase();
                         metodosRecursivos += `                  nodo.children.push(this.consumir('${simboloMayuscula}'));\n`;
-                    } 
+                    }
                     else if (simbolo.tipo === 'NO_TERMINAL') {
                         metodosRecursivos += `                  nodo.children.push(this.terminalL_${simbolo.valor}());\n`;
-                    } 
+                    }
                     else if (simbolo.tipo === 'LAMBDA') {
                         metodosRecursivos += `                  nodo.children.push({ id: this.generarId(), label: "LAMBDA", children: [] });\n`;
                     }
@@ -259,7 +265,7 @@ ${mapeoTokens.substring(4)}
             }
 
             metodosRecursivos += `              default:\n`;
-            metodosRecursivos += `                  this.errores.push({lexema: \`'\${tokenActual.valor}'\`,tipo: 'Sintactico', mensaje: \`Error sintactico en ${noTerminal}: Token inesperado '\${tokenActual.tipo}'\`, fila: tokenActual.fila, columna: tokenActual.columna });\n`;
+            metodosRecursivos += `                  this.errores.push({lexema: \`'\${tokenActual.valor}'\`,tipo: 'Sintactico', mensaje: \`Error sintactico en ${noTerminal}: Token inesperado '\${tokenActual.tipo}'\`, fila: (tokenActual.fila + 1), columna: tokenActual.columna });\n`;
             metodosRecursivos += `                  this.indice++;\n`;
             metodosRecursivos += `                  //Produccion de error para graficarla\n`;
             metodosRecursivos += `                  nodo.children.push({ id: this.generarId(), label: "ERROR", children: [] });\n`;
@@ -301,7 +307,7 @@ class Parser_${nombreClase} {
         let tokenFinal = this.obtenerToken();
         
         if (tokenFinal.tipo !== 'EOF') {
-            this.errores.push({lexema: 'EOF', tipo: 'Sintactico', mensaje: \`Se esperaba EOF, pero se encontro \${tokenFinal.tipo}\`, fila: tokenFinal.fila, columna: tokenFinal.columna });
+            this.errores.push({lexema: 'EOF', tipo: 'Sintactico', mensaje: \`Se esperaba EOF, pero se encontro \${tokenFinal.tipo}\`, fila: (tokenFinal.fila + 1), columna: tokenFinal.columna });
         }
         
         return {
@@ -326,7 +332,7 @@ class Parser_${nombreClase} {
 
             if (tokenActual.tipo === 'ERROR_LEXICO') {
                 this.errores.push({
-                    lexema: tokenActual.valor, tipo: 'Lexico', mensaje: \`Caracter no reconocido por el lenguaje: '\${tokenActual.valor}'\`, fila: tokenActual.fila, columna: tokenActual.columna 
+                    lexema: tokenActual.valor, tipo: 'Lexico', mensaje: \`Caracter no reconocido por el lenguaje: '\${tokenActual.valor}'\`, fila: (tokenActual.fila + 1), columna: tokenActual.columna 
                 });
                 this.indice++;
             } else {
@@ -352,7 +358,7 @@ class Parser_${nombreClase} {
             this.indice++;
             return { id: this.generarId(), label: \`'\${tokenActual.valor}'\`, children: [] };
         } else {
-            this.errores.push({lexema: tokenActual.valor, tipo: 'Sintactico', mensaje: \`Se esperaba \${tokenEsperado} pero vino: \${tokenActual.tipo}\`, fila: tokenActual.fila, columna: tokenActual.columna });
+            this.errores.push({lexema: tokenActual.valor, tipo: 'Sintactico', mensaje: \`Se esperaba \${tokenEsperado} pero vino: \${tokenActual.tipo}\`, fila: (tokenActual.fila + 1), columna: tokenActual.columna });
             this.indice++;
             return { id: this.generarId(), label: "ERROR", children: [] };
         }
