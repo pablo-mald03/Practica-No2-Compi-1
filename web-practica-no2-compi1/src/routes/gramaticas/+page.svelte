@@ -319,6 +319,14 @@
                     </span>
                     <div class="btn-group btn-group-sm">
                         <button
+                            class="btn btn-outline-danger text-white-50 border-secondary"
+                            aria-label="Limpiar arbol"
+                            title="Limpiar arbol"
+                            onclick={() => g.limpiarArbol()}
+                        >
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button
                             class="btn btn-outline-secondary text-white-50"
                             aria-label="Zoom in"
                             onclick={() => g.zoomIn()}

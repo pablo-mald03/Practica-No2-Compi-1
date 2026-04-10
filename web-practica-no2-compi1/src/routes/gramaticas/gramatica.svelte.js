@@ -245,10 +245,7 @@ export function createGrammarState() {
                 document.body.removeChild(anchorElement);
                 window.URL.revokeObjectURL(downloadUrl);
 
-                console.log("¡Descarga completada con éxito!");
-
             } catch (error) {
-                console.error("Error en la vista al descargar:", error.message);
                 alert(`No se pudo descargar el archivo: ${error.message}`);
             }
         },
@@ -323,6 +320,15 @@ export function createGrammarState() {
             isDragging = true;
             startPanX = e.clientX - panX;
             startPanY = e.clientY - panY;
+        },
+        /*Metodo para limpiar el canvas del arbol*/
+        limpiarArbol() {
+            mostrarArbol = false;
+            nodosArbol = [];
+            linksArbol = [];
+            panX = 0;
+            panY = 50;
+            zoom = 1;
         },
         /*Metodo que permite arrastrar el scroll*/
         arrastrar(e) {
