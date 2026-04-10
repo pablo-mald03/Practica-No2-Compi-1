@@ -86,32 +86,36 @@
                                 onclick={() =>
                                     e.cargarPreset("mayus-letras", elTextarea)}
                             >
-                                <i class="bi bi-file-earmark-code-fill me-2 text-info"></i>ER
-                                Letras Mayusculas
+                                <i
+                                    class="bi bi-file-earmark-code-fill me-2 text-info"
+                                ></i>ER Letras Mayusculas
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
                                 onclick={() =>
                                     e.cargarPreset("min-letras", elTextarea)}
                             >
-                                <i class="bi bi-file-earmark-code me-2 text-info"></i>ER
-                                Letras Minuscrulas
+                                <i
+                                    class="bi bi-file-earmark-code me-2 text-info"
+                                ></i>ER Letras Minuscrulas
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
                                 onclick={() =>
                                     e.cargarPreset("letras-total", elTextarea)}
                             >
-                                <i class="bi bi-file-earmark-code-fill me-2 text-info"></i>ER
-                                Letras
+                                <i
+                                    class="bi bi-file-earmark-code-fill me-2 text-info"
+                                ></i>ER Letras
                             </button>
                             <button
                                 class="btn btn-outline-secondary text-white btn-sm w-100 mb-2 text-start border-0"
                                 onclick={() =>
                                     e.cargarPreset("numeros", elTextarea)}
                             >
-                                <i class="bi bi-file-earmark-code me-2 text-info"></i>ER
-                                Numeros
+                                <i
+                                    class="bi bi-file-earmark-code me-2 text-info"
+                                ></i>ER Numeros
                             </button>
                         </div>
                     </div>
@@ -192,44 +196,54 @@
                     </div>
 
                     <div
-                        class="card-footer border-secondary text-end"
+                        class="card-footer border-secondary d-flex justify-content-between align-items-center"
                         style="background-color: #1e293b;"
                     >
-                        <input
-                            type="file"
-                            accept=".txt"
-                            class="d-none"
-                            bind:this={elFileInput}
-                            onchange={(ev) => e.cargarDesdeArchivo(ev)}
-                        />
+                        <button
+                            class="btn btn-outline-primary fw-bold"
+                            onclick={() => e.probarGramatica()}
+                            aria-label="probar gramatica"
+                        >
+                            <i class="bi bi-terminal me-1"></i> PROBAR
+                        </button>
 
-                        <button
-                            class="btn btn-outline-info me-2"
-                            onclick={() => elFileInput.click()}
-                            aria-label="cargar archivo"
-                            title="Cargar archivo .txt"
-                        >
-                            <i class="bi bi-file-earmark-arrow-up"></i>
-                        </button>
-                        
-                        <button
-                            class="btn btn-outline-warning me-2"
-                            onclick={() => {
-                                e.codigoGramatica = "";
-                                e.errores = [];
-                                e.logConsola =
-                                    "Wison Compiler v1.0.0\n\nEsperando entrada...";
-                            }}
-                            aria-label="compilar gramatica"
-                        >
-                            <i class="bi bi-trash"></i>
-                        </button>
-                        <button
-                            class="btn btn-success px-4 fw-bold shadow-sm"
-                            onclick={() => e.compilar()}
-                        >
-                            <i class="bi bi-play-fill me-1"></i> GENERAR
-                        </button>
+                        <div class="d-flex align-items-center">
+                            <input
+                                type="file"
+                                accept=".txt,.wison"
+                                class="d-none"
+                                bind:this={elFileInput}
+                                onchange={(ev) => e.cargarDesdeArchivo(ev)}
+                            />
+
+                            <button
+                                class="btn btn-outline-info me-2"
+                                onclick={() => elFileInput.click()}
+                                title="Cargar archivo"
+                            >
+                                <i class="bi bi-file-earmark-arrow-up"></i>
+                            </button>
+
+                            <button
+                                class="btn btn-outline-warning me-2"
+                                onclick={() => {
+                                    e.codigoGramatica = "";
+                                    e.errores = [];
+                                    e.logConsola =
+                                        "Wison Compiler v1.0.0\n\nEsperando entrada...";
+                                }}
+                                title="Limpiar"
+                            >
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                            <button
+                                class="btn btn-success px-4 fw-bold shadow-sm"
+                                onclick={() => e.compilar()}
+                            >
+                                <i class="bi bi-play-fill me-1"></i> GENERAR
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -351,6 +365,17 @@
                                 >{e.logConsola}</code
                             ></pre>
                     </div>
+
+                    <button
+                        class="btn btn-sm btn-outline-warning p-0 px-2 border-secondary"
+                        style="position: absolute; bottom: 10px; right: 10px; opacity: 0.7; background-color: #1e293b;"
+                        title="Limpiar consola"
+                        onclick={() => e.limpiarConsola()}
+                        aria-label="limpiar consola"
+                    >
+                        <i class="bi bi-brush-fill" style="font-size: 0.8rem;"
+                        ></i>
+                    </button>
                 </div>
             </div>
         </div>

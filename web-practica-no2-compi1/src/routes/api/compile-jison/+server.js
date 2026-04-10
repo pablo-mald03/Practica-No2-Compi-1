@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import jison from 'jison';
 
+/*Metodo post delegado para poder compilar el archivo .jison generado como LEXER dinamicamente en la aplicacion*/
 export async function POST({ request }) {
     try {
 
